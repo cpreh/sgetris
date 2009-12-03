@@ -1,0 +1,58 @@
+#!/bin/fish
+
+if [ (count $argv) -ne 1 ];
+	echo "usage: generate_headers <filename>";
+	exit -2;
+end;
+
+set filename $argv[1]
+set filename_upper (echo $filename | tr '[:lower:]' '[:upper:]' | sed -e 's/\./_/g')
+set namespacefile "base_namespace"
+
+while true;
+	if [ -z $PWD ];
+		echo "Couldn't find file called base_namespace";
+		exit -1;
+	end;
+
+	if [ -f $namespacefile ];
+		set tree (cat $namespacefile) $tree;
+		break;
+	end;
+
+	if [ ! -f $namespacefile ];
+		set tree (basename $PWD) $tree;
+		cd ..;
+	end;
+end;
+
+set guard "";
+for i in $tree;
+	if [ -z $guard ];
+		set guard (echo $i | tr '[:lower:]' '[:upper:]');
+	else
+		set guard $guard"_"(echo $i | tr '[:lower:]' '[:upper:]');
+	end;
+end;
+
+set guard $guard"_"$filename_upper"_HPP_INCLUDED"
+
+echo "#ifndef "$guard
+echo "#define "$guard
+
+echo "";
+
+for i in $tree;
+	echo "namespace" $i;
+	echo "{"
+end;
+
+echo ""
+
+for i in $tree;
+	echo "}"
+end;
+
+echo "";
+
+echo "#endif"
