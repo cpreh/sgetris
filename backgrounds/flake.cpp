@@ -73,7 +73,8 @@ sgetris::backgrounds::flake::update(
 	sprite_.rotation(
 		static_cast<sge::sprite::rotation_type>(
 			std::sin(
-				inside_sin.value()) * 
+				inside_sin.value()/
+				static_cast<real::value_type>(2)) * 
 			sge::math::pi<real::value_type>()/
 			static_cast<real::value_type>(2)));
 	
