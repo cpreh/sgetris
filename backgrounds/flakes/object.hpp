@@ -49,13 +49,13 @@ private:
 	boost::ptr_vector<flake>
 	flake_sequence;
 
+	sge::texture::default_creator<sge::texture::no_fragmented> texture_creator_;
+	sge::texture::manager texture_manager_;
 	sge::sprite::intrusive::system ss_;
 	diff_clock clock_;
 	sge::time::timer frame_timer_;
 	flake_sequence flakes_;
 
-	sge::texture::default_creator<sge::texture::no_fragmented> texture_creator_;
-	sge::texture::manager texture_manager_;
 };
 }
 }

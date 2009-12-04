@@ -35,6 +35,13 @@ sgetris::backgrounds::flakes::object::object(
 	flake_count const _flakes,
 	sge::filesystem::path const &_image_path)
 :
+	texture_creator_(
+		_renderer,
+		sge::image::color::format::rgba8,
+		sge::renderer::filter::linear),
+	texture_manager_(
+		_renderer,
+		texture_creator_),
 	ss_(
 		_renderer),
 	clock_(),
@@ -44,14 +51,7 @@ sgetris::backgrounds::flakes::object::object(
 				1)),
 		sge::time::activation_state::active,
 		clock_.callback()),
-	flakes_(),
-	texture_creator_(
-		_renderer,
-		sge::image::color::format::rgba8,
-		sge::renderer::filter::linear),
-	texture_manager_(
-		_renderer,
-		texture_creator_)
+	flakes_()
 {
 	sge::texture::const_part_ptr const t(
 		sge::texture::add_image(
