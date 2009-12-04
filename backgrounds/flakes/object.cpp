@@ -1,4 +1,4 @@
-#include "flakes.hpp"
+#include "object.hpp"
 #include <sge/image/color/format.hpp>
 #include <sge/renderer/filter/linear.hpp>
 #include <sge/sprite/intrusive/object.hpp>
@@ -27,7 +27,7 @@
 #include <sge/math/dim/output.hpp>
 #include <sge/cerr.hpp>
 
-sgetris::backgrounds::flakes::flakes(
+sgetris::backgrounds::flakes::object::object(
 	sge::renderer::device_ptr const _renderer,
 	// The flakes get the loader because in a later version more than one flake image could be loaded
 	// from a directory
@@ -147,7 +147,7 @@ sgetris::backgrounds::flakes::flakes(
 }
 
 void
-sgetris::backgrounds::flakes::update(
+sgetris::backgrounds::flakes::object::update(
 	time_delta const _td)
 {
 	clock_.update(
@@ -162,7 +162,7 @@ sgetris::backgrounds::flakes::update(
 }
 
 void
-sgetris::backgrounds::flakes::draw()
+sgetris::backgrounds::flakes::object::draw()
 {
 	ss_.render();
 }

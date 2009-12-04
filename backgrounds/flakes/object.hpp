@@ -1,10 +1,11 @@
-#ifndef SGETRIS_BACKGROUNDS_FLAKES_HPP_HPP_INCLUDED
-#define SGETRIS_BACKGROUNDS_FLAKES_HPP_HPP_INCLUDED
+#ifndef SGETRIS_BACKGROUNDS_FLAKES_OBJECT_HPP_HPP_INCLUDED
+#define SGETRIS_BACKGROUNDS_FLAKES_OBJECT_HPP_HPP_INCLUDED
 
-#include "base.hpp"
 #include "flake.hpp"
-#include "../diff_clock.hpp"
-#include "../real.hpp"
+#include "flake_count.hpp"
+#include "../base.hpp"
+#include "../../diff_clock.hpp"
+#include "../../real.hpp"
 #include <sge/renderer/device_fwd.hpp>
 #include <sge/image/loader_fwd.hpp>
 #include <sge/time/timer.hpp>
@@ -21,15 +22,15 @@ namespace sgetris
 {
 namespace backgrounds
 {
-class flakes
+namespace flakes
+{
+class object
 :
 	public base
 {
 public:
-	typedef unsigned flake_count;
-
 	explicit
-	flakes(
+	object(
 		sge::renderer::device_ptr,
 		// The flakes get the loader because in a later version more than one flake image could be loaded
 		// from a directory
@@ -56,6 +57,7 @@ private:
 	sge::texture::default_creator<sge::texture::no_fragmented> texture_creator_;
 	sge::texture::manager texture_manager_;
 };
+}
 }
 }
 

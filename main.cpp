@@ -1,4 +1,4 @@
-#include "backgrounds/flakes.hpp"
+#include "backgrounds/flakes/object.hpp"
 #include "media_path.hpp"
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
@@ -82,7 +82,7 @@ try
 				boost::phoenix::ref(running) = false)));
 	
 	sge::scoped_ptr<sgetris::backgrounds::base> bg(
-		new sgetris::backgrounds::flakes(
+		new sgetris::backgrounds::flakes::object(
 			sys.renderer(),
 			sys.image_loader(),
 			static_cast<sgetris::backgrounds::flakes::flake_count>(

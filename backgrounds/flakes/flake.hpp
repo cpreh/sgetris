@@ -1,8 +1,8 @@
-#ifndef SGETRIS_BACKGROUNDS_FLAKE_HPP_HPP_INCLUDED
-#define SGETRIS_BACKGROUNDS_FLAKE_HPP_HPP_INCLUDED
+#ifndef SGETRIS_BACKGROUNDS_FLAKES_FLAKE_HPP_HPP_INCLUDED
+#define SGETRIS_BACKGROUNDS_FLAKES_FLAKE_HPP_HPP_INCLUDED
 
-#include "../real.hpp"
-#include "../point.hpp"
+#include "../../real.hpp"
+#include "../../point.hpp"
 #include <sge/noncopyable.hpp>
 #include <sge/renderer/screen_size.hpp>
 #include <sge/sprite/intrusive/parameters.hpp>
@@ -14,6 +14,8 @@
 namespace sgetris
 {
 namespace backgrounds
+{
+namespace flakes
 {
 class flake
 {
@@ -41,6 +43,7 @@ private:
 	void
 	reset();
 };
+}
 }
 }
 

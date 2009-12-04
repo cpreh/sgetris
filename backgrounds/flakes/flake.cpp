@@ -5,7 +5,7 @@
 #include <sge/math/twopi.hpp>
 #include <sge/math/pi.hpp>
 
-sgetris::backgrounds::flake::flake(
+sgetris::backgrounds::flakes::flake::flake(
 	real const &_f,
 	sge::renderer::screen_size const &_screen_size,
 	sge::sprite::intrusive::parameters const &_params,
@@ -37,7 +37,7 @@ sgetris::backgrounds::flake::flake(
 }
 
 void
-sgetris::backgrounds::flake::update(
+sgetris::backgrounds::flakes::flake::update(
 	real const &_r)
 {
 	position_.y() += speed_ * _r;
@@ -83,7 +83,7 @@ sgetris::backgrounds::flake::update(
 }
 
 void
-sgetris::backgrounds::flake::reset()
+sgetris::backgrounds::flakes::flake::reset()
 {
 	position_.x() = 
 		real(
