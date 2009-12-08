@@ -14,6 +14,7 @@ SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 FIND_PACKAGE(Boost 1.36.0 COMPONENTS
 	filesystem
+	program_options
 	system)
 
 IF(NOT Boost_FOUND)
@@ -61,7 +62,8 @@ SET_SOURCE_FILES_PROPERTIES(
 FILE(GLOB basefiles *.cpp)
 
 FILE(GLOB_RECURSE collectionsfiles
-	backgrounds/*.cpp)
+	backgrounds/*.cpp
+	parser/*.cpp)
 
 ADD_EXECUTABLE(sgetris ${basefiles} ${collectionsfiles})
 TARGET_LINK_LIBRARIES(sgetris sgecore)

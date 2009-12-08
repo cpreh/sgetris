@@ -1,5 +1,7 @@
 #include "backgrounds/flakes/object.hpp"
 #include "media_path.hpp"
+//#include "machine.hpp"
+//#include "states/unpaused.hpp"
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
 #include <sge/signal/scoped_connection.hpp>
@@ -36,22 +38,72 @@
 #include <sge/texture/default_creator_impl.hpp>
 #include <sge/mainloop/dispatch.hpp>
 #include <sge/math/dim/structure_cast.hpp>
+#include <sge/math/dim/input.hpp>
+#include <sge/math/dim/output.hpp>
 #include <sge/cerr.hpp>
 #include <sge/exception.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/program_options.hpp>
 #include <exception>
+#include <iostream>
 #include <ostream>
 #include <cstdlib>
 
-int main()
+#include "media_path.hpp"
+#include "parser/parse_file.hpp"
+#include <boost/foreach.hpp>
+#include <sge/cout.hpp>
+#include <sge/container/field_impl.hpp>
+
+int main(
+	int _argc,
+	char *_argv[])
 try
 {
 	sge::log::activate_levels(
 		sge::log::global(),
-		sge::log::level::debug
-	);
+		sge::log::level::debug);
+	
+	{
+	sgetris::parser::stone_sequence const stones = 
+		sgetris::parser::parse_file(
+			sgetris::media_path()/SGE_TEXT("stones.txt"));
+	
+	BOOST_FOREACH(sgetris::parser::stone_template const &r,stones)
+		sge::cout << SGE_TEXT("Stone:\n") << r;
+	}
+	
+	boost::program_options::options_description desc("Allowed options");
+	desc.add_options()
+		(
+			"help",
+			"produce help message")
+		(
+			"screen-size",
+			boost::program_options::value<sge::renderer::screen_size>()->default_value(
+				sge::renderer::screen_size(
+					1024,
+					768)),
+			"Change screen resolution (format: (w,h))");
+	
+	boost::program_options::variables_map vm;
+	boost::program_options::store(
+		boost::program_options::parse_command_line(
+			_argc,
+			_argv,
+			desc),
+		vm);
+	
+	boost::program_options::notify(
+		vm);
+
+	if (vm.count("help"))
+	{
+		std::cout << desc << "\n";
+		return 0;
+	}
 
 	sge::systems::instance sys(
 		sge::systems::list()
@@ -60,7 +112,7 @@ try
 		))
 		(sge::renderer::parameters(
 			sge::renderer::display_mode(
-				sge::renderer::screen_size(1024,768),
+				vm["screen-size"].as<sge::renderer::screen_size>(),
 				sge::renderer::bit_depth::depth32,
 				sge::renderer::refresh_rate_dont_care),
 			sge::renderer::depth_buffer::off,
@@ -86,11 +138,19 @@ try
 			sys.renderer(),
 			sys.image_loader(),
 			static_cast<sgetris::backgrounds::flakes::flake_count>(
-				100),
+				20),
 			sgetris::media_path()/SGE_TEXT("snowflake.png")));
 
 	sgetris::time_delta t = 
 		sge::time::time();
+	
+	/*
+	sgetris::machine m(
+		_argv,
+		_argv);
+	m.initiate();
+	*/
+
 	while(running)
 	{
 		sgetris::time_delta const 
@@ -102,9 +162,15 @@ try
 		t = newtime;
 
 		sge::mainloop::dispatch();
-		sge::renderer::scoped_block const block_(sys.renderer());
+		sge::renderer::scoped_block const block_(
+			sys.renderer());
 		bg->update(
 			diff);
+			/*
+		m.process_event(
+			sgetris::events::tick(
+				diff));
+				*/
 		bg->draw();
 	}
 }
