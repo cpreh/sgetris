@@ -1,6 +1,8 @@
 #include "object.hpp"
-#include <sge/image/color/format.hpp>
-#include <sge/renderer/filter/linear.hpp>
+#include "flake.hpp"
+#include "../../texture_manager.hpp"
+#include "../../media_path.hpp"
+#include "../../program_options.hpp"
 #include <sge/sprite/intrusive/object.hpp>
 #include <sge/sprite/intrusive/parameters.hpp>
 #include <sge/math/dim/structure_cast.hpp>
@@ -10,9 +12,6 @@
 #include <sge/filesystem/path.hpp>
 #include <sge/time/second.hpp>
 #include <sge/time/unit.hpp>
-#include <sge/texture/part.hpp>
-#include <sge/texture/add_image.hpp>
-#include <sge/texture/default_creator_impl.hpp>
 #include <sge/random/uniform.hpp>
 #include <sge/sprite/unit.hpp>
 #include <sge/random/inclusive_range.hpp>
@@ -25,23 +24,62 @@
 
 #include <sge/math/vector/output.hpp>
 #include <sge/math/dim/output.hpp>
-#include <sge/cerr.hpp>
+#include <sge/text.hpp>
+
+#include <boost/program_options.hpp>
+
+namespace
+{
+struct program_options
+{
+public:
+	program_options()
+	{
+		sgetris::program_options().add_options()
+			(
+				"flakes-count",
+				boost::program_options::value<sgetris::backgrounds::flakes::flake_count>()->default_value(
+					static_cast<sgetris::backgrounds::flakes::flake_count>(
+						20)),
+				"Number of flakes")
+			(
+				"flakes-size-min",
+				boost::program_options::value<sgetris::real::value_type>()->default_value(
+					static_cast<sgetris::real::value_type>(
+						0.05)),
+				"Minimum flake size (in percent of the screen)")
+			(
+				"flakes-size-max",
+				boost::program_options::value<sgetris::real::value_type>()->default_value(
+					static_cast<sgetris::real::value_type>(
+						0.20)),
+				"Maximum flake size (in percent of the screen)")
+			(
+				"flakes-speed-min",
+				boost::program_options::value<sgetris::real::value_type>()->default_value(
+					static_cast<sgetris::real::value_type>(
+						10)),
+				"Minimum flake speed (in pixels per second)")
+			(
+				"flakes-speed-max",
+				boost::program_options::value<sgetris::real::value_type>()->default_value(
+					static_cast<sgetris::real::value_type>(
+						200)),
+				"Maximum flake speed (in pixels per second)");
+	}
+private:
+} options;
+}
 
 sgetris::backgrounds::flakes::object::object(
+	boost::program_options::variables_map &_program_options,
 	sge::renderer::device_ptr const _renderer,
 	// The flakes get the loader because in a later version more than one flake image could be loaded
 	// from a directory
-	sge::image::loader_ptr const _image_loader,
-	flake_count const _flakes,
-	sge::filesystem::path const &_image_path)
+	texture_manager &_texture_manager)
 :
-	texture_creator_(
-		_renderer,
-		sge::image::color::format::rgba8,
-		sge::renderer::filter::linear),
 	texture_manager_(
-		_renderer,
-		texture_creator_),
+		_texture_manager),
 	ss_(
 		_renderer),
 	clock_(),
@@ -53,12 +91,8 @@ sgetris::backgrounds::flakes::object::object(
 		clock_.callback()),
 	flakes_()
 {
-	sge::texture::const_part_ptr const t(
-		sge::texture::add_image(
-			texture_manager_,
-			_image_loader->load(
-				_image_path)));
-	
+	texture_manager_.load(
+		media_path()/SGE_TEXT("backgrounds")/SGE_TEXT("flakes")/SGE_TEXT("textures.ini"));
 	sge::random::uniform<sge::sprite::unit> 
 		xposition_rng(
 			sge::random::make_inclusive_range(
@@ -77,19 +111,15 @@ sgetris::backgrounds::flakes::object::object(
 		size_range(
 			static_cast<real::value_type>(
 				_renderer->screen_size().w())*
-			static_cast<real::value_type>(
-				0.05),
+			_program_options["flakes-size-min"].as<real::value_type>(),
 			static_cast<real::value_type>(
 				_renderer->screen_size().w())*
-			static_cast<real::value_type>(
-				0.20));
+			_program_options["flakes-size-max"].as<real::value_type>());
 	
 	std::pair<real::value_type,real::value_type>
 		speed_range(
-			static_cast<real::value_type>(
-				10),
-			static_cast<real::value_type>(
-				200));
+			_program_options["flakes-speed-min"].as<real::value_type>(),
+			_program_options["flakes-speed-max"].as<real::value_type>());
 	
 	sge::random::uniform<real::value_type> rng(
 		sge::random::make_inclusive_range(
@@ -98,7 +128,11 @@ sgetris::backgrounds::flakes::object::object(
 			static_cast<real::value_type>(
 				1)));
 
-	for (flake_count i = sge::math::null<flake_count>(); i < _flakes; ++i)
+	for(
+		flake_count i = sge::math::null<flake_count>(),
+		fc = _program_options["flakes-count"].as<flake_count>(); 
+		i < fc; 
+		++i)
 	{
 		// Roll the dice
 		real::value_type const v = 
@@ -107,8 +141,6 @@ sgetris::backgrounds::flakes::object::object(
 		sge::sprite::point const position(
 			xposition_rng(),
 			yposition_rng());
-
-	//	sge::cerr << "adding flake at position: " << position << "\n";
 
 		sge::sprite::dim const size(
 			sge::math::dim::structure_cast<sge::sprite::dim>(
@@ -131,7 +163,8 @@ sgetris::backgrounds::flakes::object::object(
 					.pos(
 						position)
 					.texture(
-						t)
+						texture_manager_.texture(
+							SGE_TEXT("flake")))
 					.size(
 						size),
 				speed));

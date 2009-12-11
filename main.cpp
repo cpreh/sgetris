@@ -1,7 +1,10 @@
 #include "backgrounds/flakes/object.hpp"
 #include "media_path.hpp"
-//#include "machine.hpp"
-//#include "states/unpaused.hpp"
+#include "program_options.hpp"
+#include "texture_manager.hpp"
+#include "sound_manager.hpp"
+#include <sge/audio/multi_loader.hpp>
+#include <sge/audio/sound.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
 #include <sge/signal/scoped_connection.hpp>
@@ -23,7 +26,7 @@
 #include <sge/input/action.hpp>
 #include <sge/input/key_pair.hpp>
 #include <sge/input/key_code.hpp>
-#include <sge/image/loader.hpp>
+#include <sge/image/multi_loader.hpp>
 #include <sge/image/colors.hpp>
 #include <sge/image/color/rgba8.hpp>
 #include <sge/image/color/init.hpp>
@@ -66,17 +69,7 @@ try
 		sge::log::global(),
 		sge::log::level::debug);
 	
-	{
-	sgetris::parser::stone_sequence const stones = 
-		sgetris::parser::parse_file(
-			sgetris::media_path()/SGE_TEXT("stones.txt"));
-	
-	BOOST_FOREACH(sgetris::parser::stone_template const &r,stones)
-		sge::cout << SGE_TEXT("Stone:\n") << r;
-	}
-	
-	boost::program_options::options_description desc("Allowed options");
-	desc.add_options()
+	sgetris::program_options().add_options()
 		(
 			"help",
 			"produce help message")
@@ -93,7 +86,7 @@ try
 		boost::program_options::parse_command_line(
 			_argc,
 			_argv,
-			desc),
+			sgetris::program_options()),
 		vm);
 	
 	boost::program_options::notify(
@@ -101,7 +94,7 @@ try
 
 	if (vm.count("help"))
 	{
-		std::cout << desc << "\n";
+		std::cout << sgetris::program_options() << "\n";
 		return 0;
 	}
 
@@ -127,6 +120,18 @@ try
 
 	bool running = true;
 
+	sge::audio::multi_loader audio_loader(
+		sys.plugin_manager());
+	sgetris::sound_manager sm(
+		audio_loader,
+		sys.audio_player());
+	
+	sge::image::multi_loader image_loader(
+		sys.plugin_manager());
+	sgetris::texture_manager tm(
+		image_loader,
+		sys.renderer());
+
 	sge::signal::scoped_connection const cb(
 		sys.input_system()->register_callback(
 			sge::input::action(
@@ -135,15 +140,14 @@ try
 	
 	sge::scoped_ptr<sgetris::backgrounds::base> bg(
 		new sgetris::backgrounds::flakes::object(
+			vm,
 			sys.renderer(),
-			sys.image_loader(),
-			static_cast<sgetris::backgrounds::flakes::flake_count>(
-				20),
-			sgetris::media_path()/SGE_TEXT("snowflake.png")));
+			tm));
 
 	sgetris::time_delta t = 
 		sge::time::time();
 	
+
 	/*
 	sgetris::machine m(
 		_argv,

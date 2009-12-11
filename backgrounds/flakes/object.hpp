@@ -1,8 +1,9 @@
 #ifndef SGETRIS_BACKGROUNDS_FLAKES_OBJECT_HPP_HPP_INCLUDED
 #define SGETRIS_BACKGROUNDS_FLAKES_OBJECT_HPP_HPP_INCLUDED
 
-#include "flake.hpp"
+#include "flake_fwd.hpp"
 #include "flake_count.hpp"
+#include "../../texture_manager_fwd.hpp"
 #include "../base.hpp"
 #include "../../diff_clock.hpp"
 #include "../../real.hpp"
@@ -16,6 +17,7 @@
 #include <sge/texture/no_fragmented.hpp>
 #include <sge/texture/manager.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/program_options/variables_map.hpp>
 #include <utility>
 
 namespace sgetris
@@ -31,12 +33,11 @@ class object
 public:
 	explicit
 	object(
+		boost::program_options::variables_map &,
 		sge::renderer::device_ptr,
 		// The flakes get the loader because in a later version more than one flake image could be loaded
 		// from a directory
-		sge::image::loader_ptr,
-		flake_count,
-		sge::filesystem::path const &);
+		texture_manager &);
 	
 	void
 	update(	
@@ -49,8 +50,7 @@ private:
 	boost::ptr_vector<flake>
 	flake_sequence;
 
-	sge::texture::default_creator<sge::texture::no_fragmented> texture_creator_;
-	sge::texture::manager texture_manager_;
+	texture_manager &texture_manager_;
 	sge::sprite::intrusive::system ss_;
 	diff_clock clock_;
 	sge::time::timer frame_timer_;

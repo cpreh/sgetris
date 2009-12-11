@@ -3,7 +3,9 @@
 
 #if 0
 #include "states/running.hpp"
+#include <sge/systems/instance_fwd.hpp>
 #include <boost/statechart/state_machine.hpp>
+#include <boost/program_options/variables_map.hpp>
 
 namespace sgetris
 {
@@ -12,9 +14,17 @@ class machine
 {
 public:
 	machine(
-		int,
-		char*argv[]);
+		boost::program_options::variables_map &,
+		sge::systems::instance const &);
+
+	boost::program_options::variables_map &
+	program_options_map() const;
+
+	sge::systems::instance const &
+	systems() const;
 private:
+	boost::program_options::variables_map &program_options_map_;
+	sge::systems::instance const &systems_;
 };
 }
 #endif
