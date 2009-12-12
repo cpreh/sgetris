@@ -36,11 +36,11 @@ private:
 	>
 	texture_map;
 
-	texture_map texture_map_;
 	sge::image::multi_loader &loader_;
 	sge::renderer::device_ptr const renderer_;
 	sge::texture::default_creator<sge::texture::no_fragmented> texture_creator_;
 	sge::texture::manager texture_manager_;
+	texture_map texture_map_;
 };
 }
 

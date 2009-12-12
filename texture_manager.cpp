@@ -17,7 +17,6 @@ sgetris::texture_manager::texture_manager(
 	sge::image::multi_loader &_loader,
 	sge::renderer::device_ptr const _renderer)
 :
-	texture_map_(),
 	loader_(
 		_loader),
 	renderer_(
@@ -28,7 +27,8 @@ sgetris::texture_manager::texture_manager(
 		sge::renderer::filter::linear),
 	texture_manager_(
 		renderer_,
-		texture_creator_)
+		texture_creator_),
+	texture_map_()
 {
 }
 

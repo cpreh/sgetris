@@ -1,10 +1,10 @@
 #include "object.hpp"
 #include "flake.hpp"
+#include "../../sprite/object.hpp"
+#include "../../sprite/system.hpp"
 #include "../../texture_manager.hpp"
 #include "../../media_path.hpp"
 #include "../../program_options.hpp"
-#include <sge/sprite/intrusive/object.hpp>
-#include <sge/sprite/intrusive/parameters.hpp>
 #include <sge/math/dim/structure_cast.hpp>
 #include <sge/math/null.hpp>
 #include <sge/renderer/device.hpp>
@@ -13,7 +13,6 @@
 #include <sge/time/second.hpp>
 #include <sge/time/unit.hpp>
 #include <sge/random/uniform.hpp>
-#include <sge/sprite/unit.hpp>
 #include <sge/random/inclusive_range.hpp>
 #include <sge/math/dim/make.hpp>
 #include <sge/renderer/state/list.hpp>
@@ -21,6 +20,7 @@
 #include <sge/renderer/state/color.hpp>
 #include <sge/renderer/state/trampoline.hpp>
 #include <sge/image/colors.hpp>
+#include <sge/sprite/default_equal.hpp>
 
 #include <sge/math/vector/output.hpp>
 #include <sge/math/dim/output.hpp>
@@ -93,20 +93,20 @@ sgetris::backgrounds::flakes::object::object(
 {
 	texture_manager_.load(
 		media_path()/SGE_TEXT("backgrounds")/SGE_TEXT("flakes")/SGE_TEXT("textures.ini"));
-	sge::random::uniform<sge::sprite::unit> 
+	sge::random::uniform<sprite::object::unit> 
 		xposition_rng(
 			sge::random::make_inclusive_range(
-				sge::math::null<sge::sprite::unit>(),
-				static_cast<sge::sprite::unit>(
+				sge::math::null<sprite::object::unit>(),
+				static_cast<sprite::object::unit>(
 					_renderer->screen_size().w()))),
 		yposition_rng(
 			sge::random::make_inclusive_range(
-				sge::math::null<sge::sprite::unit>(),
-				static_cast<sge::sprite::unit>(
+				sge::math::null<sprite::object::unit>(),
+				static_cast<sprite::object::unit>(
 					_renderer->screen_size().h())));
 
 	// Those pairs are real::value_type to avoid ugly casting below, they'll be cast
-	// one time sge::sprite::unit
+	// one time sprite::object::unit
 	std::pair<real::value_type,real::value_type> 
 		size_range(
 			static_cast<real::value_type>(
@@ -138,18 +138,18 @@ sgetris::backgrounds::flakes::object::object(
 		real::value_type const v = 
 			rng();
 
-		sge::sprite::point const position(
+		sprite::object::point const position(
 			xposition_rng(),
 			yposition_rng());
 
-		sge::sprite::dim const size(
-			sge::math::dim::structure_cast<sge::sprite::dim>(
+		sprite::object::dim const size(
+			sge::math::dim::structure_cast<sprite::object::dim>(
 				sge::math::dim::make(
 					size_range.first + v * (size_range.second - size_range.first),
 					size_range.first + v * (size_range.second - size_range.first))));
 
-		sge::sprite::unit const speed = 
-			static_cast<sge::sprite::unit>(
+		sprite::object::unit const speed = 
+			static_cast<sprite::object::unit>(
 				speed_range.first + v * (speed_range.second - speed_range.first));
 		
 		flakes_.push_back(
@@ -157,9 +157,11 @@ sgetris::backgrounds::flakes::object::object(
 				real(
 					v),
 				_renderer->screen_size(),
-				sge::sprite::intrusive::parameters(
-					ss_,
-					sge::sprite::intrusive::order())
+				sprite::parameters()
+					.system(
+						&ss_)
+					.order(
+						0u)
 					.pos(
 						position)
 					.texture(
@@ -197,5 +199,6 @@ sgetris::backgrounds::flakes::object::update(
 void
 sgetris::backgrounds::flakes::object::draw()
 {
-	ss_.render();
+	ss_.render_all(
+		sge::sprite::default_equal());
 }

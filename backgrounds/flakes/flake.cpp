@@ -1,4 +1,5 @@
 #include "flake.hpp"
+#include "../../sprite/system.hpp"
 #include <sge/math/dim/structure_cast.hpp>
 #include <sge/math/vector/structure_cast.hpp>
 #include <sge/random/inclusive_range.hpp>
@@ -8,13 +9,13 @@
 sgetris::backgrounds::flakes::flake::flake(
 	real const &_f,
 	sge::renderer::screen_size const &_screen_size,
-	sge::sprite::intrusive::parameters const &_params,
-	sge::sprite::unit const &_speed)
+	sprite::parameters const &_params,
+	sprite::object::unit const _speed)
 :
 	f_(
 		_f),
 	sprite_(
-		_params),
+		_params.elements()),
 	starting_x_(
 		sge::math::real_cast<real>(
 			sprite_.x())),
@@ -25,7 +26,7 @@ sgetris::backgrounds::flakes::flake::flake(
 		sge::math::real_cast<real>(
 			_speed)),
 	screen_size_(
-		sge::math::dim::structure_cast<sge::sprite::dim>(
+		sge::math::dim::structure_cast<sprite::object::dim>(
 			_screen_size)),
 	x_rng_(
 		sge::random::make_inclusive_range(
@@ -64,21 +65,21 @@ sgetris::backgrounds::flakes::flake::update(
 		value;
 
 	// TODO: structure_cast here, but it won't work with real yet
-	sprite_.x() = 
-		static_cast<sge::sprite::unit>(
-			position_.x().value());
-	sprite_.y() = 
-		static_cast<sge::sprite::unit>(
-			position_.y().value());
+	sprite_.x( 
+		static_cast<sprite::object::unit>(
+			position_.x().value()));
+	sprite_.y( 
+		static_cast<sprite::object::unit>(
+			position_.y().value()));
 	sprite_.rotation(
-		static_cast<sge::sprite::rotation_type>(
+		static_cast<sprite::object::rotation_type>(
 			std::sin(
 				inside_sin.value()/
 				static_cast<real::value_type>(2)) * 
 			sge::math::pi<real::value_type>()/
 			static_cast<real::value_type>(2)));
 	
-	if (sprite_.y() > static_cast<sge::sprite::unit>(screen_size_.h()))
+	if (sprite_.y() > screen_size_.h())
 		reset();
 }
 

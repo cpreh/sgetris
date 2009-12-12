@@ -30,10 +30,6 @@
 #include <sge/image/colors.hpp>
 #include <sge/image/color/rgba8.hpp>
 #include <sge/image/color/init.hpp>
-#include <sge/sprite/object.hpp>
-#include <sge/sprite/system.hpp>
-#include <sge/sprite/parameters.hpp>
-#include <sge/sprite/texture_animation.hpp>
 #include <sge/texture/manager.hpp>
 #include <sge/texture/add_image.hpp>
 #include <sge/texture/no_fragmented.hpp>

@@ -3,11 +3,10 @@
 
 #include "../../real.hpp"
 #include "../../point.hpp"
+#include "../../sprite/parameters.hpp"
+#include "../../sprite/object.hpp"
 #include <sge/noncopyable.hpp>
 #include <sge/renderer/screen_size.hpp>
-#include <sge/sprite/intrusive/parameters.hpp>
-#include <sge/sprite/intrusive/object.hpp>
-#include <sge/sprite/unit.hpp>
 #include <sge/math/vector/basic_impl.hpp>
 #include <sge/random/uniform.hpp>
 
@@ -25,19 +24,19 @@ public:
 	flake(
 		real const &,
 		sge::renderer::screen_size const &,
-		sge::sprite::intrusive::parameters const &,
-		sge::sprite::unit const &speed);
+		sprite::parameters const &,
+		sprite::object::unit speed);
 	
 	void
 	update(
 		real const &);
 private:
 	real f_;
-	sge::sprite::intrusive::object sprite_;
+	sprite::object sprite_;
 	real starting_x_;
 	point position_;
 	real speed_;
-	sge::sprite::dim screen_size_;
+	sprite::object::dim screen_size_;
 	sge::random::uniform<real::value_type> x_rng_;
 
 	void

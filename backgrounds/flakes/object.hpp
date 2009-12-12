@@ -7,12 +7,11 @@
 #include "../base.hpp"
 #include "../../diff_clock.hpp"
 #include "../../real.hpp"
+#include "../../sprite/system.hpp"
 #include <sge/renderer/device_fwd.hpp>
 #include <sge/image/loader_fwd.hpp>
 #include <sge/time/timer.hpp>
 #include <sge/filesystem/path.hpp>
-#include <sge/sprite/intrusive/system.hpp>
-#include <sge/sprite/intrusive/object_fwd.hpp>
 #include <sge/texture/default_creator.hpp>
 #include <sge/texture/no_fragmented.hpp>
 #include <sge/texture/manager.hpp>
@@ -51,7 +50,7 @@ private:
 	flake_sequence;
 
 	texture_manager &texture_manager_;
-	sge::sprite::intrusive::system ss_;
+	sprite::system ss_;
 	diff_clock clock_;
 	sge::time::timer frame_timer_;
 	flake_sequence flakes_;
