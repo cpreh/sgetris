@@ -25,7 +25,6 @@ sge::sprite::choices
 	>,
 	boost::mpl::vector3
 	<
-		//sge::sprite::with_color,
 		sge::sprite::with_texture,
 		sge::sprite::with_rotation,
 		sge::sprite::intrusive::tag

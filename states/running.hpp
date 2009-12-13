@@ -42,6 +42,15 @@ private:
 	field field_;
 	sge::sprite::intrusive::system ss_;
 
+	sprite::object::dim block_dim_;
+	sprite::rect 
+		field_rect_,
+		upcoming_rect_,
+		hud_rect_;
+
+	void
+	calculate_rects();
+
 	void
 	generate_upcoming_list();
 };

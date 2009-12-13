@@ -25,17 +25,11 @@ public:
 						2)),
 				"The number of upcoming stones to be displayed")
 			(
-				"field-width",
+				"margins",
 				boost::program_options::value<sgetris::real::value_type>()->default_value(
 					static_cast<sgetris::real::value_type>(
-						0.70)),
-				"The size of the playing field in percent of the screen - horizontally")
-			(
-				"upcoming-height",
-				boost::program_options::value<sgetris::real::value_type>()->default_value(
-					static_cast<sgetris::real::value_type>(
-						0.80)),
-				"The size of the upcoming stone box in percent of the screen - vertically");
+						0.01)),
+				"Size of the margins between hud/field/upcoming stones in percent of the screen height");
 	}
 private:
 } options;
@@ -58,6 +52,7 @@ sgetris::states::running::running(
 	ss_(
 		context<machine>().systems().renderer())
 {
+	calculate_dims();
 	generate_upcoming_list();
 }
 
@@ -102,11 +97,7 @@ sgetris::states::running::generate_upcoming_list()
 	//  einfügen.
 	
 	typedef
-	sge::sprite::rect<sprite::object::unit>::type
-	rect;
-
-	typedef
-	rectangle_aligner<rect>
+	rectangle_aligner<sprite::rect>
 	rectangle_aligner;
 
 	typedef 
@@ -126,17 +117,12 @@ sgetris::states::running::generate_upcoming_list()
 
 	iterator_container iterators;
 	iterator_picker<parser::stone_sequence> picker;
-	rectangle_aligner aligner;
-
-	sge::texture::const_part_ptr const block_texture = 
-		context<machine>().texture_manager().texture(
-			SGE_TEXT("block"));
-	sge::texture::lock_rect::value_type const block_size = 
-		block_texture->area().width();
+	rectangle_aligner aligner(
+		upcoming_rect_);
 
 	for(
 		upcoming_sequence::size_type i = 
-			sge::math::null<upcoming_sequence>(); 
+			sge::math::null<upcoming_sequence::size_type>(); 
 		i < upcoming_count; 
 		++i)
 	{
@@ -207,4 +193,89 @@ sgetris::states::running::generate_upcoming_list()
 			}
 		}
 	}
+}
+
+void
+sgetris::states::running::calculate_rects()
+{
+	sge::renderer::screen_size const screen_size = 
+		context<machine>().systems().renderer()->screen_size();
+
+	sprite::object::unit const 
+		margin_value = 
+			static_cast<real::value_type>(
+				screen_size.h()) * 
+			vm["margins"].as<real::value_type>(),
+		field_height = 
+			static_cast<sprite::object::unit>(
+				screen_size.h()) - 
+			static_cast<sprite::object::unit>(
+				2)*
+			margin_value,
+		block_height = 
+			field_height/
+			static_cast<sprite::object::unit>(
+				field_.dim().h());
+
+	block_dim_ = 
+		sprite::object::dim(
+			block_height,
+			block_height);
+	
+	field_rect_ = 
+		rect(
+			sprite::object::point(
+				margin_value,
+				margin_value),
+			sprite::dim(
+				static_cast<sprite::object::unit>(
+					block_height * 
+					static_cast<sprite::object::unit>(
+						field_.dim().w())),
+				field_height));
+	
+	// calculate the height of the largest stone, multiply by the number of upcoming pieces and get the height of the upcoming box
+	parser::stone_template::size_type max_height = 
+		possible_stones_.front().dim().h();
+	BOOST_FOREACH(parser::stone_template const &r,possible_stones_)
+		max_height = 
+			std::max(
+				max_height,
+				r.dim().h());
+	
+	sprite::object::unit const 
+		upcoming_height = 
+			static_cast<sprite::object::unit>(
+				max_height)*
+			static_cast<sprite::object::unit>(
+				context<machine>().program_options_map()["upcoming-count"].as<upcoming_sequence::size_type>()),
+		remaining_width = 
+			screen_size.w() - 
+			margin_value - 
+			field_rect_.w() - 
+			margin_value - 
+			/* insert hud and upcoming here */
+			margin_value;
+	
+	upcoming_rect_ = 
+		rect(
+			sprite::object::point(
+				margin_value,
+				field_rect_.w() + 
+				margin_value),
+			sprite::object::dim(
+				remaining_width,
+				upcoming_height));
+	
+	hud_rect_ = 
+		rect(
+			sprite::object::point(
+				upcoming_rect_.left(),
+				upcoming_rect_.bottom() + margin_value),
+			sprite::object::dim(
+				static_cast<sprite::object::unit>(
+					screen_size.h() - 
+					margin_value - 
+					upcoming_rect_.h() - 
+					margin_value)));
 }
