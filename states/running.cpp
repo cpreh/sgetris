@@ -23,7 +23,19 @@ public:
 				boost::program_options::value<sgetris::states::running::upcoming_sequence::size_type>()->default_value(
 					static_cast<sgetris::states::running::upcoming_sequence::size_type>(
 						2)),
-				"The number of upcoming stones to be displayed");
+				"The number of upcoming stones to be displayed")
+			(
+				"field-width",
+				boost::program_options::value<sgetris::real::value_type>()->default_value(
+					static_cast<sgetris::real::value_type>(
+						0.70)),
+				"The size of the playing field in percent of the screen - horizontally")
+			(
+				"upcoming-height",
+				boost::program_options::value<sgetris::real::value_type>()->default_value(
+					static_cast<sgetris::real::value_type>(
+						0.80)),
+				"The size of the upcoming stone box in percent of the screen - vertically");
 	}
 private:
 } options;
@@ -72,22 +84,96 @@ sgetris::states::running::react(
 	return discard_event();
 }
 
+
 void
 sgetris::states::running::generate_upcoming_list()
 {
-	upcoming_.resize(
-		context<machine>().program_options_map()["upcoming-count"].as<upcoming_sequence::size_type>());
+	upcoming_sequence::size_type const upcoming_count = 
+		context<machine>().program_options_map()["upcoming-count"].as<upcoming_sequence::size_type>();
 	
-	BOOST_FOREACH(upcoming_sequence::reference r,upcoming_)
+	// Vorgehen: 
+	// -n mal folgendes:
+	// --Stein zufällig auswählen, Iterator speichern
+	// --Größe berechnen (in nxn-Matrix umwandeln, davon die Größe nehmen)
+	// --in rectangle_aligner packen, Iterator speichern
+	// -Kompilieren
+	// -Liste durchlaufen, sprite_blocks instanziieren mit entsprechender
+	//  Position, in field<weak_ptr> speichern. Dieses field in upcoming_liste
+	//  einfügen.
+	
+	typedef
+	sge::sprite::rect<sprite::object::unit>::type
+	rect;
+
+	typedef
+	rectangle_aligner<rect>
+	rectangle_aligner;
+
+	typedef 
+	std::pair
+	<
+		parser::stone_sequence::const_iterator,
+		rectangle_aligner::iterator
+	>
+	iterator_pair;
+
+	typedef
+	std::vector
+	<
+		iterator_pair
+	>
+	iterator_container;
+
+	iterator_container iterators;
+	iterator_picker<parser::stone_sequence> picker;
+	rectangle_aligner aligner;
+
+	sge::texture::const_part_ptr const block_texture = 
+		context<machine>().texture_manager().texture(
+			SGE_TEXT("block"));
+	sge::texture::lock_rect::value_type const block_size = 
+		block_texture->area().width();
+
+	for(
+		upcoming_sequence::size_type i = 
+			sge::math::null<upcoming_sequence>(); 
+		i < upcoming_count; 
+		++i)
 	{
-		parser::stone_sequence::const_reference stone = 
-			pick_one_possible_stone();
+		parser::stone_sequence::const_iterator const it = 
+			picker.pick();
 
 		stone_template::size_type const 
 			maxdim = 
 				std::max(
-					stone.dim().w(),
-					stone.dim().h());
+					it->dim().w(),
+					it->dim().h());
+
+		iterators.push_back(
+			std::make_pair(
+				it,
+				aligner.insert(
+					rect(
+						rect::pos_type(),
+						rect::dim_type(
+							static_cast<rect::value_type>(
+								block_size),
+							static_cast<rect::value_type>(
+								block_size))))));
+	}
+
+	aligner.compile();
+
+	BOOST_FOREACH(iterator_container::const_reference r,iterators)
+	{
+		parser::stone_template const &t = 
+			*r.first;
+			
+		stone_template::size_type const 
+			maxdim = 
+				std::max(
+					t.dim().w(),
+					t.dim().h());
 
 		r.resize(
 			field::dim_type(
@@ -98,11 +184,26 @@ sgetris::states::running::generate_upcoming_list()
 		{
 			for (field::size_type x = sge::math::null<field::size_type>(); x < maxdim; ++x)
 			{
-				if (x >= stone.dim().w() || y >= stone.dim().h())
+				if (x >= t.dim().w() || y >= t.dim().h())
 					continue;
 
-				// TODO: create stone here (sprite_block), then make an entry in r
-	//			r.pos(field::vector_type(x,y)) = 
+				objects_.push_back(
+					new objects::sprite_block(
+						sprite::parameters()
+							.system(&ss_)
+							.texture(
+								block_texture)
+							.order(
+								0u)
+							// FIXME: add position here
+							.pos(
+								)
+							.texture_size()));
+
+				r.pos(
+					field::vector_type(
+						x,
+						y)) = objects_.back();
 			}
 		}
 	}

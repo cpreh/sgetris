@@ -22,19 +22,19 @@
 #include <sge/log/global.hpp>
 #include <sge/log/activate_levels.hpp>
 #include <sge/time/time.hpp>
+#include <sge/time/frames_counter.hpp>
+#include <sge/font/metrics.hpp>
+#include <sge/font/object.hpp>
+#include <sge/font/drawer_3d.hpp>
+#include <sge/font/system.hpp>
+#include <sge/font/text_size.hpp>
+#include <sge/make_shared_ptr.hpp>
 #include <sge/input/system.hpp>
 #include <sge/input/action.hpp>
 #include <sge/input/key_pair.hpp>
 #include <sge/input/key_code.hpp>
 #include <sge/image/multi_loader.hpp>
 #include <sge/image/colors.hpp>
-#include <sge/image/color/rgba8.hpp>
-#include <sge/image/color/init.hpp>
-#include <sge/texture/manager.hpp>
-#include <sge/texture/add_image.hpp>
-#include <sge/texture/no_fragmented.hpp>
-#include <sge/texture/default_creator.hpp>
-#include <sge/texture/default_creator_impl.hpp>
 #include <sge/mainloop/dispatch.hpp>
 #include <sge/math/dim/structure_cast.hpp>
 #include <sge/math/dim/input.hpp>
@@ -56,6 +56,7 @@
 #include <sge/cout.hpp>
 #include <sge/container/field_impl.hpp>
 
+
 int main(
 	int _argc,
 	char *_argv[])
@@ -75,7 +76,12 @@ try
 				sge::renderer::screen_size(
 					1024,
 					768)),
-			"Change screen resolution (format: (w,h))");
+			"Change screen resolution (format: (w,h))")
+		(
+			"fps",
+			boost::program_options::value<bool>()->default_value(
+				true),
+			"Show frames per second");
 	
 	boost::program_options::variables_map vm;
 	boost::program_options::store(
@@ -112,7 +118,8 @@ try
 		))
 		(sge::systems::parameterless::input)
 		(sge::systems::parameterless::audio_player)
-		(sge::systems::parameterless::image));
+		(sge::systems::parameterless::image)
+		(sge::systems::parameterless::font));
 
 	bool running = true;
 
@@ -143,6 +150,24 @@ try
 	sgetris::time_delta t = 
 		sge::time::time();
 	
+	sge::font::metrics_ptr const metrics(
+		sys.font_system()->create_font(
+			sge::config::media_path() / SGE_TEXT("fonts") / SGE_TEXT("default.ttf"),
+			static_cast<sge::font::size_type>(
+				15)));
+
+	sge::font::drawer_ptr const drawer(
+		sge::make_shared_ptr<
+			sge::font::drawer_3d
+		>(
+			sys.renderer(),
+			sge::image::colors::green()));
+
+	sge::font::object font(
+		metrics,
+		drawer);
+	
+	sge::time::frames_counter frames_counter;
 
 	/*
 	sgetris::machine m(
@@ -153,6 +178,8 @@ try
 
 	while(running)
 	{
+		frames_counter.update();
+
 		sgetris::time_delta const 
 			newtime = 
 				sge::time::time(),
@@ -172,6 +199,15 @@ try
 				diff));
 				*/
 		bg->draw();
+
+		if (vm["fps"].as<bool>())
+			font.draw_text(
+				SGE_TEXT("fps: ")+frames_counter.frames_str(),
+				sge::font::pos::null(),
+				sge::math::dim::structure_cast<sge::font::dim>(
+					sys.renderer()->screen_size()),
+				sge::font::align_h::left,
+				sge::font::align_v::top);
 	}
 }
 catch(sge::exception const &e)
