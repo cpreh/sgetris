@@ -1,14 +1,16 @@
 #include "machine.hpp"
 
-#if 0
 sgetris::machine::machine(
-	boost::program_options::variables_map &_program_options_map
-	sge::systems::instance const &_systems)
+	boost::program_options::variables_map &_program_options_map,
+	sge::systems::instance const &_systems,
+	sgetris::texture_manager &_texture_manager)
 :
 	program_options_map_(
 		_program_options_map),
 	systems_(
-		_systems)
+		_systems),
+	texture_manager_(
+		_texture_manager)
 {
 }
 
@@ -25,4 +27,10 @@ sgetris::machine::systems() const
 	return 
 		systems_;
 }
-#endif
+
+sgetris::texture_manager &
+sgetris::machine::texture_manager() const
+{
+	return 
+		texture_manager_;
+}

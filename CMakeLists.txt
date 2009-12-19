@@ -63,7 +63,12 @@ FILE(GLOB basefiles *.cpp)
 
 FILE(GLOB_RECURSE collectionsfiles
 	backgrounds/*.cpp
-	parser/*.cpp)
+	parser/*.cpp
+	states/*.cpp
+	events/*.cpp
+	objects/*.cpp
+	log/*.cpp
+	game_logics/*.cpp)
 
 ADD_EXECUTABLE(sgetris ${basefiles} ${collectionsfiles})
 TARGET_LINK_LIBRARIES(sgetris sgecore)

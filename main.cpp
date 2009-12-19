@@ -3,6 +3,11 @@
 #include "program_options.hpp"
 #include "texture_manager.hpp"
 #include "sound_manager.hpp"
+#include "machine.hpp"
+#include "states/running.hpp"
+#include "events/tick.hpp"
+#include "log/context.hpp"
+#include "log_switcher.hpp"
 #include <sge/audio/multi_loader.hpp>
 #include <sge/audio/sound.hpp>
 #include <sge/systems/instance.hpp>
@@ -28,6 +33,7 @@
 #include <sge/font/drawer_3d.hpp>
 #include <sge/font/system.hpp>
 #include <sge/font/text_size.hpp>
+#include <sge/log/global_context.hpp>
 #include <sge/make_shared_ptr.hpp>
 #include <sge/input/system.hpp>
 #include <sge/input/action.hpp>
@@ -56,7 +62,6 @@
 #include <sge/cout.hpp>
 #include <sge/container/field_impl.hpp>
 
-
 int main(
 	int _argc,
 	char *_argv[])
@@ -82,6 +87,17 @@ try
 			boost::program_options::value<bool>()->default_value(
 				true),
 			"Show frames per second");
+			
+
+	sgetris::log_switcher 
+		sge_log(
+			&sgetris::program_options,
+			SGE_TEXT("sge"),
+			sge::log::global_context()),
+		sgetris_log(
+			&sgetris::program_options,
+			SGE_TEXT("sgetris"),
+			sgetris::log::context());
 	
 	boost::program_options::variables_map vm;
 	boost::program_options::store(
@@ -94,11 +110,20 @@ try
 	boost::program_options::notify(
 		vm);
 
+	sge_log.apply(
+		vm);
+
+	sgetris_log.apply(
+		vm);
+
 	if (vm.count("help"))
 	{
 		std::cout << sgetris::program_options() << "\n";
 		return 0;
 	}
+
+	sge::renderer::screen_size const screens =
+		vm["screen-size"].as<sge::renderer::screen_size>();
 
 	sge::systems::instance sys(
 		sge::systems::list()
@@ -107,7 +132,7 @@ try
 		))
 		(sge::renderer::parameters(
 			sge::renderer::display_mode(
-				vm["screen-size"].as<sge::renderer::screen_size>(),
+				screens,
 				sge::renderer::bit_depth::depth32,
 				sge::renderer::refresh_rate_dont_care),
 			sge::renderer::depth_buffer::off,
@@ -169,12 +194,11 @@ try
 	
 	sge::time::frames_counter frames_counter;
 
-	/*
 	sgetris::machine m(
-		_argv,
-		_argv);
+		vm,
+		sys,
+		tm);
 	m.initiate();
-	*/
 
 	while(running)
 	{
@@ -193,11 +217,9 @@ try
 			sys.renderer());
 		bg->update(
 			diff);
-			/*
 		m.process_event(
 			sgetris::events::tick(
 				diff));
-				*/
 		bg->draw();
 
 		if (vm["fps"].as<bool>())
@@ -209,6 +231,8 @@ try
 				sge::font::align_h::left,
 				sge::font::align_v::top);
 	}
+
+	sge::cerr << "Am Ende von main\n";
 }
 catch(sge::exception const &e)
 {
@@ -219,4 +243,8 @@ catch(std::exception const &e)
 {
 	sge::cerr << e.what() << SGE_TEXT('\n');
 	return EXIT_FAILURE;
+}
+catch (...)
+{
+	sge::cerr << SGE_TEXT("Caught someting unknown");
 }

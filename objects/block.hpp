@@ -1,7 +1,7 @@
 #ifndef SGETRIS_OBJECTS_BLOCK_HPP_HPP_INCLUDED
 #define SGETRIS_OBJECTS_BLOCK_HPP_HPP_INCLUDED
 
-#include <sge/sprite/point.hpp>
+#include "../sprite/vector.hpp"
 #include "base.hpp"
 
 namespace sgetris
@@ -14,7 +14,7 @@ class block
 public:
 	virtual void
 	move(
-		sge::sprite::point const &) = 0;
+		sprite::vector const &) = 0;
 	
 	virtual void 
 	die() = 0;

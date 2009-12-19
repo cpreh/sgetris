@@ -2,6 +2,7 @@
 #define SGETRIS_OBJECTS_BASE_HPP_HPP_INCLUDED
 
 #include "../time_delta.hpp"
+#include <sge/noncopyable.hpp>
 
 namespace sgetris
 {

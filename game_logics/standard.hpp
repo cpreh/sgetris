@@ -2,6 +2,7 @@
 #define SGETRIS_GAME_LOGICS_STANDARD_HPP_HPP_INCLUDED
 
 #include "base.hpp"
+#include <sge/signal/object.hpp>
 
 namespace sgetris
 {

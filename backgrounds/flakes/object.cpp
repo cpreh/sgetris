@@ -2,6 +2,9 @@
 #include "flake.hpp"
 #include "../../sprite/object.hpp"
 #include "../../sprite/system.hpp"
+#include "../../sprite/scalar.hpp"
+#include "../../sprite/vector.hpp"
+#include "../../sprite/dim.hpp"
 #include "../../texture_manager.hpp"
 #include "../../media_path.hpp"
 #include "../../program_options.hpp"
@@ -93,20 +96,20 @@ sgetris::backgrounds::flakes::object::object(
 {
 	texture_manager_.load(
 		media_path()/SGE_TEXT("backgrounds")/SGE_TEXT("flakes")/SGE_TEXT("textures.ini"));
-	sge::random::uniform<sprite::object::unit> 
+	sge::random::uniform<sprite::scalar> 
 		xposition_rng(
 			sge::random::make_inclusive_range(
-				sge::math::null<sprite::object::unit>(),
-				static_cast<sprite::object::unit>(
+				sge::math::null<sprite::scalar>(),
+				static_cast<sprite::scalar>(
 					_renderer->screen_size().w()))),
 		yposition_rng(
 			sge::random::make_inclusive_range(
-				sge::math::null<sprite::object::unit>(),
-				static_cast<sprite::object::unit>(
+				sge::math::null<sprite::scalar>(),
+				static_cast<sprite::scalar>(
 					_renderer->screen_size().h())));
 
 	// Those pairs are real::value_type to avoid ugly casting below, they'll be cast
-	// one time sprite::object::unit
+	// one time sprite::scalar
 	std::pair<real::value_type,real::value_type> 
 		size_range(
 			static_cast<real::value_type>(
@@ -138,18 +141,18 @@ sgetris::backgrounds::flakes::object::object(
 		real::value_type const v = 
 			rng();
 
-		sprite::object::point const position(
+		sprite::vector const position(
 			xposition_rng(),
 			yposition_rng());
 
-		sprite::object::dim const size(
-			sge::math::dim::structure_cast<sprite::object::dim>(
+		sprite::dim const size(
+			sge::math::dim::structure_cast<sprite::dim>(
 				sge::math::dim::make(
 					size_range.first + v * (size_range.second - size_range.first),
 					size_range.first + v * (size_range.second - size_range.first))));
 
-		sprite::object::unit const speed = 
-			static_cast<sprite::object::unit>(
+		sprite::scalar const speed = 
+			static_cast<sprite::scalar>(
 				speed_range.first + v * (speed_range.second - speed_range.first));
 		
 		flakes_.push_back(

@@ -9,7 +9,7 @@ namespace sgetris
 namespace events
 {
 class tick
-	: boost::statechart::event<tick>
+	: public boost::statechart::event<tick>
 {
 public:
 	explicit

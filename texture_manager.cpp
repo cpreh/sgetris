@@ -66,7 +66,7 @@ sgetris::texture_manager::load(
 
 sge::texture::const_part_ptr const
 sgetris::texture_manager::texture(
-	sge::string const &_s)
+	sge::string const &_s) const
 {
 	texture_map::const_iterator const i = 
 		texture_map_.find(

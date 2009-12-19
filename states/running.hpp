@@ -1,21 +1,39 @@
 #ifndef SGETRIS_STATES_RUNNING_HPP_HPP_INCLUDED
 #define SGETRIS_STATES_RUNNING_HPP_HPP_INCLUDED
 
-#include "../field.hpp"
+#include "../machine.hpp"
 #include "../events/tick.hpp"
 #include "../objects/weak_ptr.hpp"
+#include "../objects/base_fwd.hpp"
 #include "../game_logics/base.hpp"
+#include "../sprite/system.hpp"
+#include "../sprite/object.hpp"
+#include "../sprite/rect.hpp"
+#include "../sprite/dim.hpp"
+#include "../parser/stone_sequence.hpp"
 #include <boost/ptr_container/ptr_list.hpp>
+#include <boost/statechart/state.hpp>
+#include <boost/statechart/custom_reaction.hpp>
+#include <boost/mpl/vector.hpp>
 #include <sge/scoped_ptr.hpp>
+#include <sge/shared_ptr.hpp>
+#include <sge/container/field_decl.hpp>
 
 namespace sgetris
 {
 namespace states
 {
 class running
-	: public boost::statechart::state<running,machine,unpaused>
+	: public boost::statechart::state<running,machine>
 {
 public:
+	typedef 
+	boost::mpl::vector1
+	<
+		boost::statechart::custom_reaction<events::tick>
+	>
+	reactions;
+
 	typedef
 	sge::container::field<objects::weak_ptr>
 	field;
@@ -32,7 +50,11 @@ public:
 		events::tick const &);
 private:
 	typedef
-	boost::ptr_list<object>
+	//boost::ptr_list<objects::base>
+	std::vector
+	<
+		sge::shared_ptr<objects::base>
+	>
 	object_sequence;
 
 	sge::scoped_ptr<game_logics::base> logic_;
@@ -40,9 +62,9 @@ private:
 	upcoming_sequence upcoming_;
 	object_sequence objects_;
 	field field_;
-	sge::sprite::intrusive::system ss_;
+	sprite::system ss_;
 
-	sprite::object::dim block_dim_;
+	sprite::dim block_dim_;
 	sprite::rect 
 		field_rect_,
 		upcoming_rect_,

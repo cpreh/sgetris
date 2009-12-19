@@ -5,6 +5,8 @@
 #include "../../point.hpp"
 #include "../../sprite/parameters.hpp"
 #include "../../sprite/object.hpp"
+#include "../../sprite/scalar.hpp"
+#include "../../sprite/dim.hpp"
 #include <sge/noncopyable.hpp>
 #include <sge/renderer/screen_size.hpp>
 #include <sge/math/vector/basic_impl.hpp>
@@ -25,7 +27,7 @@ public:
 		real const &,
 		sge::renderer::screen_size const &,
 		sprite::parameters const &,
-		sprite::object::unit speed);
+		sprite::scalar speed);
 	
 	void
 	update(
@@ -36,7 +38,7 @@ private:
 	real starting_x_;
 	point position_;
 	real speed_;
-	sprite::object::dim screen_size_;
+	sprite::dim screen_size_;
 	sge::random::uniform<real::value_type> x_rng_;
 
 	void

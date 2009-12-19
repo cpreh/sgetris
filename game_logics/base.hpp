@@ -19,6 +19,7 @@ protected:
 	explicit
 	base();
 
+public:
 	virtual bool
 	fall_down_expired() const = 0;
 

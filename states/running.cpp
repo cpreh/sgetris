@@ -1,6 +1,21 @@
 #include "running.hpp"
+#include "../real.hpp"
 #include "../program_options.hpp"
 #include "../game_logics/standard.hpp"
+#include "../parser/parse_file.hpp"
+#include "../objects/sprite_block.hpp"
+#include "../rectangle_aligner.hpp"
+#include "../iterator_picker.hpp"
+#include "../texture_manager.hpp"
+#include "../sprite/scalar.hpp"
+#include <sge/systems/instance.hpp>
+#include <sge/math/dim/arithmetic.hpp>
+#include <sge/math/dim/structure_cast.hpp>
+#include <sge/math/dim/basic_impl.hpp>
+#include <sge/math/dim/output.hpp>
+#include <sge/math/dim/input.hpp>
+#include <sge/container/field_impl.hpp>
+#include <sge/cerr.hpp>
 #include <boost/program_options.hpp>
 
 namespace
@@ -48,11 +63,11 @@ sgetris::states::running::running(
 	upcoming_(),
 	objects_(),
 	field_(
-		context<machine>().program_options_map()["field-size"].as<field::dim_type>()),
+		/*context<machine>().program_options_map()["field-size"].as<field::dim_type>()*/),
 	ss_(
 		context<machine>().systems().renderer())
 {
-	calculate_dims();
+	calculate_rects();
 	generate_upcoming_list();
 }
 
@@ -60,17 +75,19 @@ boost::statechart::result
 sgetris::states::running::react(
 	events::tick const &t)
 {
+	sge::cerr << "tick event\n";
 	for (object_sequence::iterator i = objects_.begin(); i != objects_.end();)
 	{
-		if (i->can_be_removed())
+		if ((*i)->can_be_removed())
 		{
+			sge::cerr << "erasing object\n";
 			i = 
 				objects_.erase(
 					i);
 			continue;
 		}
 
-		i->update(
+		(*i)->update(
 			t.delta());
 	
 		++i;
@@ -116,9 +133,11 @@ sgetris::states::running::generate_upcoming_list()
 	iterator_container;
 
 	iterator_container iterators;
-	iterator_picker<parser::stone_sequence> picker;
+	iterator_picker<parser::stone_sequence> picker(
+		possible_stones_);
 	rectangle_aligner aligner(
-		upcoming_rect_);
+		upcoming_rect_,
+		rectangle_aligner::y_axis);
 
 	for(
 		upcoming_sequence::size_type i = 
@@ -129,7 +148,7 @@ sgetris::states::running::generate_upcoming_list()
 		parser::stone_sequence::const_iterator const it = 
 			picker.pick();
 
-		stone_template::size_type const 
+		parser::stone_template::size_type const 
 			maxdim = 
 				std::max(
 					it->dim().w(),
@@ -139,29 +158,30 @@ sgetris::states::running::generate_upcoming_list()
 			std::make_pair(
 				it,
 				aligner.insert(
-					rect(
-						rect::pos_type(),
-						rect::dim_type(
-							static_cast<rect::value_type>(
-								block_size),
-							static_cast<rect::value_type>(
-								block_size))))));
+					sprite::dim(
+						static_cast<sprite::scalar>(maxdim) * 
+						sge::math::dim::structure_cast<sprite::dim>(
+							block_dim_)))));
 	}
 
 	aligner.compile();
 
-	BOOST_FOREACH(iterator_container::const_reference r,iterators)
+	sge::texture::const_part_ptr const block_texture = 
+		context<machine>().texture_manager().texture(
+			SGE_TEXT("block"));
+
+	BOOST_FOREACH(iterator_container::const_reference its,iterators)
 	{
 		parser::stone_template const &t = 
-			*r.first;
+			*its.first;
 			
-		stone_template::size_type const 
+		parser::stone_template::size_type const 
 			maxdim = 
 				std::max(
 					t.dim().w(),
 					t.dim().h());
 
-		r.resize(
+		field r(
 			field::dim_type(
 				maxdim,
 				maxdim));
@@ -174,17 +194,23 @@ sgetris::states::running::generate_upcoming_list()
 					continue;
 
 				objects_.push_back(
-					new objects::sprite_block(
-						sprite::parameters()
-							.system(&ss_)
-							.texture(
-								block_texture)
-							.order(
-								0u)
-							// FIXME: add position here
-							.pos(
-								)
-							.texture_size()));
+					object_sequence::value_type(
+						new objects::sprite_block(
+							sprite::parameters()
+								.system(&ss_)
+								.texture(
+									block_texture)
+								.order(
+									0u)
+								.pos(
+									its.second->pos() + 
+									sprite::vector(
+										static_cast<sprite::scalar>(
+											x * block_dim_.w()),
+										static_cast<sprite::scalar>(
+											y * block_dim_.h())))
+								.size(
+									block_dim_))));
 
 				r.pos(
 					field::vector_type(
@@ -201,36 +227,37 @@ sgetris::states::running::calculate_rects()
 	sge::renderer::screen_size const screen_size = 
 		context<machine>().systems().renderer()->screen_size();
 
-	sprite::object::unit const 
+	sprite::scalar const 
 		margin_value = 
-			static_cast<real::value_type>(
-				screen_size.h()) * 
-			vm["margins"].as<real::value_type>(),
+			static_cast<sprite::scalar>(
+				static_cast<real::value_type>(
+					screen_size.h()) * 
+				context<machine>().program_options_map()["margins"].as<real::value_type>()),
 		field_height = 
-			static_cast<sprite::object::unit>(
+			static_cast<sprite::scalar>(
 				screen_size.h()) - 
-			static_cast<sprite::object::unit>(
+			static_cast<sprite::scalar>(
 				2)*
 			margin_value,
 		block_height = 
 			field_height/
-			static_cast<sprite::object::unit>(
+			static_cast<sprite::scalar>(
 				field_.dim().h());
 
 	block_dim_ = 
-		sprite::object::dim(
+		sprite::dim(
 			block_height,
 			block_height);
 	
 	field_rect_ = 
-		rect(
-			sprite::object::point(
+		sprite::rect(
+			sprite::vector(
 				margin_value,
 				margin_value),
 			sprite::dim(
-				static_cast<sprite::object::unit>(
+				static_cast<sprite::scalar>(
 					block_height * 
-					static_cast<sprite::object::unit>(
+					static_cast<sprite::scalar>(
 						field_.dim().w())),
 				field_height));
 	
@@ -243,11 +270,11 @@ sgetris::states::running::calculate_rects()
 				max_height,
 				r.dim().h());
 	
-	sprite::object::unit const 
+	sprite::scalar const 
 		upcoming_height = 
-			static_cast<sprite::object::unit>(
+			static_cast<sprite::scalar>(
 				max_height)*
-			static_cast<sprite::object::unit>(
+			static_cast<sprite::scalar>(
 				context<machine>().program_options_map()["upcoming-count"].as<upcoming_sequence::size_type>()),
 		remaining_width = 
 			screen_size.w() - 
@@ -258,22 +285,23 @@ sgetris::states::running::calculate_rects()
 			margin_value;
 	
 	upcoming_rect_ = 
-		rect(
-			sprite::object::point(
+		sprite::rect(
+			sprite::vector(
 				margin_value,
 				field_rect_.w() + 
 				margin_value),
-			sprite::object::dim(
+			sprite::dim(
 				remaining_width,
 				upcoming_height));
 	
 	hud_rect_ = 
-		rect(
-			sprite::object::point(
+		sprite::rect(
+			sprite::vector(
 				upcoming_rect_.left(),
 				upcoming_rect_.bottom() + margin_value),
-			sprite::object::dim(
-				static_cast<sprite::object::unit>(
+			sprite::dim(
+				upcoming_rect_.w(),
+				static_cast<sprite::scalar>(
 					screen_size.h() - 
 					margin_value - 
 					upcoming_rect_.h() - 

@@ -1,24 +1,27 @@
 #include "standard.hpp"
 #include "../media_path.hpp"
+#include <sge/text.hpp>
 
 bool
-sgetris::game_logics::fall_down_expired() const
+sgetris::game_logics::standard::fall_down_expired() const
 {
-
+	return false;
 }
 
 sgetris::score 
-sgetris::game_logics::score() const
+sgetris::game_logics::standard::score() const
 {
+	return 0;
 }
 
 sgetris::level 
-sgetris::game_logics::level() const
+sgetris::game_logics::standard::level() const
 {
+	return 0;
 }
 
 sge::signal::auto_connection
-sgetris::game_logics::register_level_up(
+sgetris::game_logics::standard::register_level_up(
 	level_up_callback const &_f)
 {
 	return 
@@ -27,22 +30,22 @@ sgetris::game_logics::register_level_up(
 }
 
 void
-sgetris::game_logics::row_clearing_begin()
+sgetris::game_logics::standard::row_clearing_begin()
 {
 }
 
 void
-sgetris::game_logics::row_clearing_end()
+sgetris::game_logics::standard::row_clearing_end()
 {
 }
 
 void
-sgetris::game_logics::row_cleared()
+sgetris::game_logics::standard::row_cleared()
 {
 }
 
 sge::filesystem::path const
-sgetris::game_logics::stone_file() const
+sgetris::game_logics::standard::stone_file() const
 {
 	return 
 		media_path()/SGE_TEXT("stones")/SGE_TEXT("standard.txt");

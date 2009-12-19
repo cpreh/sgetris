@@ -2,7 +2,9 @@
 #define SGETRIS_OBJECTS_SPRITE_BLOCK_HPP_HPP_INCLUDED
 
 #include "block.hpp"
-#include <sge/sprite/intrusive/object.hpp>
+#include "../real_point.hpp"
+#include "../sprite/object.hpp"
+#include "../sprite/parameters.hpp"
 
 namespace sgetris
 {
@@ -13,8 +15,7 @@ class sprite_block
 {
 public:
 	sprite_block(
-		sge:sprite::intrusive::parameters const &,
-		sge::sprite::intrusive::system &);
+		sprite::parameters const &);
 	
 	bool 
 	can_be_removed() const;
@@ -25,13 +26,15 @@ public:
 
 	void
 	move(
-		sge::sprite::point const &);
+		sprite::vector const &);
 	
 	void
 	die();
 private:
-	sge::sprite::intrusive::object sprite_;
-	sge::sprite::point target_;
+	sprite::object sprite_;
+	real_point pos_,target_;
+	real speed_;
+	bool dead_;
 };
 }
 }

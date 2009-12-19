@@ -26,7 +26,7 @@ public:
 	
 	sge::texture::const_part_ptr const
 	texture(
-		sge::string const &);
+		sge::string const &) const;
 private:
 	typedef
 	std::map
