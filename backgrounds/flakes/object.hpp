@@ -11,7 +11,6 @@
 #include <sge/renderer/device_fwd.hpp>
 #include <sge/image/loader_fwd.hpp>
 #include <sge/time/timer.hpp>
-#include <sge/filesystem/path.hpp>
 #include <sge/texture/default_creator.hpp>
 #include <sge/texture/no_fragmented.hpp>
 #include <sge/texture/manager.hpp>

@@ -2,7 +2,7 @@
 #define SGETRIS_EXCEPTION_HPP_HPP_INCLUDED
 
 #include <sge/exception.hpp>
-#include <sge/string.hpp>
+#include <fcppt/string.hpp>
 
 namespace sgetris
 {
@@ -12,7 +12,7 @@ class exception
 public:
 	explicit 
 	exception(
-		sge::string const &);
+		fcppt::string const &);
 };
 }
 

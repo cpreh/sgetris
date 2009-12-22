@@ -2,7 +2,7 @@
 #define SGETRIS_GAME_LOGICS_STANDARD_HPP_HPP_INCLUDED
 
 #include "base.hpp"
-#include <sge/signal/object.hpp>
+#include <fcppt/signal/object.hpp>
 
 namespace sgetris
 {
@@ -21,7 +21,7 @@ public:
 	sgetris::level 
 	level() const;
 
-	sge::signal::auto_connection
+	fcppt::signal::auto_connection
 	register_level_up(
 		level_up_callback const &);
 
@@ -34,11 +34,11 @@ public:
 	void
 	row_cleared();
 
-	sge::filesystem::path const
+	fcppt::filesystem::path const
 	stone_file() const;
 private:
 	typedef 
-	sge::signal::object<level_up_callback_fn> 
+	fcppt::signal::object<level_up_callback_fn> 
 	level_up_callback_signal;
 
 	level_up_callback_signal level_up_callback_;

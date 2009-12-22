@@ -1,11 +1,11 @@
 #include "log_switcher.hpp"
-#include <sge/log/location.hpp>
+#include <fcppt/log/location.hpp>
+#include <fcppt/log/activate_levels.hpp>
+#include <fcppt/log/context.hpp>
+#include <fcppt/log/level_from_string.hpp>
+#include <fcppt/text.hpp>
+#include <fcppt/assert.hpp>
 #include <sge/log/global.hpp>
-#include <sge/log/activate_levels.hpp>
-#include <sge/log/context.hpp>
-#include <sge/log/level_string.hpp>
-#include <sge/text.hpp>
-#include <sge/assert.hpp>
 #include <sge/exception.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -15,20 +15,20 @@
 namespace
 {
 typedef 
-std::vector<sge::string> 
+std::vector<fcppt::string> 
 string_vector;
 
 typedef 
 std::pair
 <
-	sge::string,
-	sge::string
+	fcppt::string,
+	fcppt::string
 >
 string_pair;
 
 string_vector const explode(
-	sge::string const &e,
-	sge::string const &seps)
+	fcppt::string const &e,
+	fcppt::string const &seps)
 {
 	string_vector v;
 
@@ -43,15 +43,15 @@ string_vector const explode(
 
 string_pair const
 split(
-	sge::string const &e,
-	sge::char_type const sep)
+	fcppt::string const &e,
+	fcppt::char_type const sep)
 {
-	sge::string::size_type const p = 
+	fcppt::string::size_type const p = 
 		e.find(sep);
 
 	string_pair result;
 	
-	if (p == sge::string::npos)
+	if (p == fcppt::string::npos)
 	{
 		result.first = e;
 		return result;
@@ -59,27 +59,27 @@ split(
 
 	result.first = 
 		e.substr(
-			static_cast<sge::string::size_type>(
+			static_cast<fcppt::string::size_type>(
 				0),
 			p);
 	
 	result.second = 
 		e.substr(
-			static_cast<sge::string::size_type>(
+			static_cast<fcppt::string::size_type>(
 				p+1));
 	
 	return result;
 }
 
 template<typename Range>
-sge::log::location const 
+fcppt::log::location const 
 to_location(
 	Range const &r)
 {
-	SGE_ASSERT(
+	FCPPT_ASSERT(
 		!r.empty());
 		
-	sge::log::location l(
+	fcppt::log::location l(
 		r.front());
 	
 	std::for_each(
@@ -94,8 +94,8 @@ to_location(
 
 sgetris::log_switcher::log_switcher(
 	options_callback const &_options_callback,
-	sge::string const &_prefix,
-	sge::log::context &_context)
+	fcppt::string const &_prefix,
+	fcppt::log::context &_context)
 :
 	prefix_(
 		_prefix),
@@ -103,8 +103,8 @@ sgetris::log_switcher::log_switcher(
 		_context)
 {
 	// add_options::operator() takes a const char * instead of std::string
-	sge::string const ugly_po_hack = 
-		SGE_TEXT(
+	fcppt::string const ugly_po_hack = 
+		FCPPT_TEXT(
 			"enable-"+prefix_+"-log");
 	_options_callback().add_options()
 		(
@@ -124,40 +124,40 @@ sgetris::log_switcher::apply(
 	string_vector const specs =
 		_vm["enable-"+prefix_+"-log"].as<string_vector>();
 	
-	BOOST_FOREACH(sge::string const &s,specs)
+	BOOST_FOREACH(fcppt::string const &s,specs)
 	{
 		string_pair const splitted = 
 			split(
 				s,
-				SGE_TEXT(':'));
+				FCPPT_TEXT(':'));
 
 		string_vector const parts = 
 			explode(
 				splitted.first,
-				SGE_TEXT("/"));
+				FCPPT_TEXT("/"));
 
-		sge::log::location const l =
+		fcppt::log::location const l =
 			to_location(
 				parts);
 		
-		sge::log::object *o =
+		fcppt::log::object *o =
 			context_.find(
 				l);
 
 		if (!o)
 			throw 
 				sge::exception(
-					SGE_TEXT("The specified log context ")+l.string()+SGE_TEXT(" wasn't found"));
+					FCPPT_TEXT("The specified log context ")+l.string()+FCPPT_TEXT(" wasn't found"));
 	
-		sge::log::level::type const t = 
+		fcppt::log::level::type const t = 
 			splitted.second.empty()
 			?
-				sge::log::level::debug
+				fcppt::log::level::debug
 			:	
-				sge::log::level_from_string(
+				fcppt::log::level_from_string(
 					splitted.second);
 
-		sge::log::activate_levels(
+		fcppt::log::activate_levels(
 			*o,
 			t);
 	}

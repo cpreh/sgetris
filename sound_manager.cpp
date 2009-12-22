@@ -1,7 +1,7 @@
 #include "sound_manager.hpp"
 #include "exception.hpp"
-#include <sge/filesystem/remove_filename.hpp>
-#include <sge/text.hpp>
+#include <fcppt/filesystem/remove_filename.hpp>
+#include <fcppt/text.hpp>
 #include <sge/audio/player.hpp>
 #include <sge/audio/loader.hpp>
 #include <sge/parse/ini/parse_file.hpp>
@@ -24,15 +24,15 @@ sgetris::sound_manager::sound_manager(
 
 void
 sgetris::sound_manager::load(
-	sge::filesystem::path const &_fn)
+	fcppt::filesystem::path const &_fn)
 {
 	sge::parse::ini::section_vector s;
 	if (!parse_file(_fn,s))
 		throw exception(
-			SGE_TEXT("Invalid sound file \"")+_fn.string()+SGE_TEXT("\""));
+			FCPPT_TEXT("Invalid sound file \"")+_fn.string()+FCPPT_TEXT("\""));
 	
-	sge::filesystem::path const dir = 
-		sge::filesystem::remove_filename(
+	fcppt::filesystem::path const dir = 
+		fcppt::filesystem::remove_filename(
 			_fn);
 	
 	BOOST_FOREACH(sge::parse::ini::section_vector::const_reference r,s)
@@ -41,7 +41,7 @@ sgetris::sound_manager::load(
 		{
 			if (sound_map_.find(e.name) != sound_map_.end())
 				throw exception(
-					SGE_TEXT("Got two sounds named \"")+e.name+SGE_TEXT("\""));
+					FCPPT_TEXT("Got two sounds named \"")+e.name+FCPPT_TEXT("\""));
 
 			sound_map_.insert(
 				sound_map::value_type(
@@ -55,14 +55,14 @@ sgetris::sound_manager::load(
 
 sge::audio::sound_ptr const
 sgetris::sound_manager::sound(
-	sge::string const &_s)
+	fcppt::string const &_s)
 {
 	sound_map::const_iterator const i = 
 		sound_map_.find(
 			_s);
 	if (i == sound_map_.end())
 		throw exception(
-			SGE_TEXT("Couldn't find sound \"")+_s+SGE_TEXT("\""));
+			FCPPT_TEXT("Couldn't find sound \"")+_s+FCPPT_TEXT("\""));
 	
 	return 
 		i->second;

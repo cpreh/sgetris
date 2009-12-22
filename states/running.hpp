@@ -11,13 +11,12 @@
 #include "../sprite/rect.hpp"
 #include "../sprite/dim.hpp"
 #include "../parser/stone_sequence.hpp"
-#include <boost/ptr_container/ptr_list.hpp>
 #include <boost/statechart/state.hpp>
 #include <boost/statechart/custom_reaction.hpp>
 #include <boost/mpl/vector.hpp>
-#include <sge/scoped_ptr.hpp>
-#include <sge/shared_ptr.hpp>
-#include <sge/container/field_decl.hpp>
+#include <fcppt/scoped_ptr.hpp>
+#include <fcppt/shared_ptr.hpp>
+#include <fcppt/container/field_decl.hpp>
 
 namespace sgetris
 {
@@ -35,7 +34,7 @@ public:
 	reactions;
 
 	typedef
-	sge::container::field<objects::weak_ptr>
+	fcppt::container::field<objects::weak_ptr>
 	field;
 
 	typedef
@@ -50,14 +49,13 @@ public:
 		events::tick const &);
 private:
 	typedef
-	//boost::ptr_list<objects::base>
 	std::vector
 	<
-		sge::shared_ptr<objects::base>
+		fcppt::shared_ptr<objects::base>
 	>
 	object_sequence;
 
-	sge::scoped_ptr<game_logics::base> logic_;
+	fcppt::scoped_ptr<game_logics::base> logic_;
 	parser::stone_sequence possible_stones_;
 	upcoming_sequence upcoming_;
 	object_sequence objects_;

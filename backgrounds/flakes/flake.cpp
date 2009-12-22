@@ -1,11 +1,11 @@
 #include "flake.hpp"
 #include "../../sprite/system.hpp"
 #include "../../sprite/rotation_type.hpp"
-#include <sge/math/dim/structure_cast.hpp>
-#include <sge/math/vector/structure_cast.hpp>
-#include <sge/random/inclusive_range.hpp>
-#include <sge/math/twopi.hpp>
-#include <sge/math/pi.hpp>
+#include <fcppt/math/dim/structure_cast.hpp>
+#include <fcppt/math/vector/structure_cast.hpp>
+#include <fcppt/random/inclusive_range.hpp>
+#include <fcppt/math/twopi.hpp>
+#include <fcppt/math/pi.hpp>
 
 sgetris::backgrounds::flakes::flake::flake(
 	real const &_f,
@@ -18,23 +18,23 @@ sgetris::backgrounds::flakes::flake::flake(
 	sprite_(
 		_params.elements()),
 	starting_x_(
-		sge::math::real_cast<real>(
+		fcppt::math::real_cast<real>(
 			sprite_.x())),
 	position_(
-		sge::math::vector::structure_cast<point>(
+		fcppt::math::vector::structure_cast<point>(
 			sprite_.pos())),
 	speed_(
-		sge::math::real_cast<real>(
+		fcppt::math::real_cast<real>(
 			_speed)),
 	screen_size_(
-		sge::math::dim::structure_cast<sprite::dim>(
+		fcppt::math::dim::structure_cast<sprite::dim>(
 			_screen_size)),
 	x_rng_(
-		sge::random::make_inclusive_range(
+		fcppt::random::make_inclusive_range(
 			static_cast<real::value_type>(0),
 			static_cast<real::value_type>(screen_size_.w())))
 {
-	SGE_ASSERT(
+	FCPPT_ASSERT(
 		f_ >= real(0) && f_ <= real(1));
 }
 
@@ -47,11 +47,11 @@ sgetris::backgrounds::flakes::flake::update(
 	real const 
 		inside_sin = 
 			position_.y()/
-			(f_ * sge::math::real_cast<real>(screen_size_.w())) * 
+			(f_ * fcppt::math::real_cast<real>(screen_size_.w())) * 
 			real(
-				sge::math::twopi<real::value_type>()),
+				fcppt::math::twopi<real::value_type>()),
 		x_variance = 
-			sge::math::real_cast<real>(
+			fcppt::math::real_cast<real>(
 				screen_size_.w()/3),
 		x_variance_val = 
 			f_ * x_variance,
@@ -77,7 +77,7 @@ sgetris::backgrounds::flakes::flake::update(
 			std::sin(
 				inside_sin.value()/
 				static_cast<real::value_type>(2)) * 
-			sge::math::pi<real::value_type>()/
+			fcppt::math::pi<real::value_type>()/
 			static_cast<real::value_type>(2)));
 	
 	if (sprite_.y() > screen_size_.h())
@@ -91,6 +91,6 @@ sgetris::backgrounds::flakes::flake::reset()
 		real(
 			x_rng_());
 	position_.y() = 
-		sge::math::real_cast<real>(
+		fcppt::math::real_cast<real>(
 			-sprite_.h());
 }

@@ -7,13 +7,14 @@
 #include <sge/texture/default_creator.hpp>
 #include <sge/texture/no_fragmented.hpp>
 #include <sge/texture/manager.hpp>
+#include <fcppt/noncopyable.hpp>
 #include <map>
 
 namespace sgetris
 {
 class texture_manager
 {
-SGE_NONCOPYABLE(texture_manager)
+FCPPT_NONCOPYABLE(texture_manager)
 public:
 	explicit
 	texture_manager(
@@ -22,16 +23,16 @@ public:
 	
 	void
 	load(
-		sge::filesystem::path const &);
+		fcppt::filesystem::path const &);
 	
 	sge::texture::const_part_ptr const
 	texture(
-		sge::string const &) const;
+		fcppt::string const &) const;
 private:
 	typedef
 	std::map
 	<
-		sge::string,
+		fcppt::string,
 		sge::texture::const_part_ptr
 	>
 	texture_map;

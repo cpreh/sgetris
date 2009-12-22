@@ -2,12 +2,12 @@
 #define SGETRIS_POINT_HPP_HPP_INCLUDED
 
 #include "real.hpp"
-#include <sge/math/vector/static.hpp>
+#include <fcppt/math/vector/static.hpp>
 
 namespace sgetris
 {
 typedef
-sge::math::vector::static_
+fcppt::math::vector::static_
 <
 	real,
 	2

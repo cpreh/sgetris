@@ -2,8 +2,8 @@
 #define SGETRIS_RECTANGLE_ALIGNER_IMPL_HPP_HPP_INCLUDED
 
 #include "exception.hpp"
-#include <sge/math/null.hpp>
-#include <sge/text.hpp>
+#include <fcppt/math/null.hpp>
+#include <fcppt/text.hpp>
 #include <boost/foreach.hpp>
 
 template<typename Rectangle>
@@ -42,16 +42,16 @@ sgetris::rectangle_aligner<Rectangle>::compile()
 
 	// calculate how much overhead we have
 	unit sum = 
-		sge::math::null<unit>();
+		fcppt::math::null<unit>();
 	BOOST_FOREACH(rectangle const &r,container_)
-		sum += r.dim()[axis()];
+		sum += r.dimension()[axis()];
 	
 	unit const overhead = 
-		top_.dim()[axis()] - sum;
+		top_.dimension()[axis()] - sum;
 	
-	if (overhead < sge::math::null<unit>())
+	if (overhead < fcppt::math::null<unit>())
 		throw exception(
-			SGE_TEXT("There is no space left"));
+			FCPPT_TEXT("There is no space left"));
 
 	unit const increment = 
 		overhead/static_cast<unit>(container_.size()+1);
@@ -64,11 +64,11 @@ sgetris::rectangle_aligner<Rectangle>::compile()
 			i;
 		newpos[complementary_axis()] = 
 			top_.pos()[complementary_axis()] + 
-			top_.dim()[complementary_axis()]/static_cast<unit>(2) - 
-			r.dim()[complementary_axis()]/static_cast<unit>(2);
+			top_.dimension()[complementary_axis()]/static_cast<unit>(2) - 
+			r.dimension()[complementary_axis()]/static_cast<unit>(2);
 		r.pos(
 			newpos);
-		i += r.dim()[axis()] + increment;
+		i += r.dimension()[axis()] + increment;
 	}
 }
 

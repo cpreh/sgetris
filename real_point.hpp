@@ -6,7 +6,7 @@
 namespace sgetris
 {
 typedef
-sge::math::vector::static_
+fcppt::math::vector::static_
 <
 	real::value_type,
 	2u

@@ -3,15 +3,15 @@
 
 #include "time_delta.hpp"
 #include <sge/time/unit.hpp>
-#include <sge/time/fun.hpp>
-#include <sge/noncopyable.hpp>
+#include <sge/time/callback.hpp>
+#include <fcppt/noncopyable.hpp>
 
 namespace sgetris
 {
 
 class diff_clock 
 {
-SGE_NONCOPYABLE(diff_clock)
+FCPPT_NONCOPYABLE(diff_clock)
 public:
 	diff_clock();
 
@@ -19,7 +19,7 @@ public:
 	update(
 		time_delta);
 
-	sge::time::fun const 
+	sge::time::callback const 
 	callback() const;
 private:
 	time_delta

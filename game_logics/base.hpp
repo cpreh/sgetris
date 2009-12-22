@@ -4,9 +4,9 @@
 #include "../level_up_callback.hpp"
 #include "../score.hpp"
 #include "../level.hpp"
-#include <sge/noncopyable.hpp>
-#include <sge/filesystem/path.hpp>
-#include <sge/signal/auto_connection.hpp>
+#include <fcppt/noncopyable.hpp>
+#include <fcppt/filesystem/path.hpp>
+#include <fcppt/signal/auto_connection.hpp>
 
 namespace sgetris
 {
@@ -14,7 +14,7 @@ namespace game_logics
 {
 class base
 {
-SGE_NONCOPYABLE(base)
+FCPPT_NONCOPYABLE(base)
 protected:
 	explicit
 	base();
@@ -29,7 +29,7 @@ public:
 	virtual sgetris::level 
 	level() const = 0;
 
-	virtual sge::signal::auto_connection
+	virtual fcppt::signal::auto_connection
 	register_level_up(
 		level_up_callback const &) = 0;
 
@@ -43,7 +43,7 @@ public:
 	row_cleared() = 0;
 
 	virtual 
-	sge::filesystem::path const
+	fcppt::filesystem::path const
 	stone_file() const = 0;
 public:
 	virtual ~base();

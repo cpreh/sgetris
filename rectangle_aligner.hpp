@@ -14,15 +14,15 @@ public:
 	rectangle;
 
 	typedef typename
-	Rectangle::pos_type
+	Rectangle::vector
 	point;
 
 	typedef typename
-	Rectangle::dim_type
+	Rectangle::dim
 	dim;
 
 	typedef typename
-	Rectangle::value_type
+	Rectangle::scalar
 	unit;
 
 	typedef

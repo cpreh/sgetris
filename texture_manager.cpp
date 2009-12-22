@@ -3,7 +3,6 @@
 #include <sge/texture/part.hpp>
 #include <sge/texture/add_image.hpp>
 #include <sge/texture/default_creator_impl.hpp>
-#include <sge/filesystem/remove_filename.hpp>
 #include <sge/image/color/format.hpp>
 #include <sge/renderer/filter/linear.hpp>
 #include <sge/parse/ini/parse_file.hpp>
@@ -11,6 +10,8 @@
 #include <sge/parse/ini/section.hpp>
 #include <sge/parse/ini/entry_vector.hpp>
 #include <sge/parse/ini/entry.hpp>
+#include <fcppt/text.hpp>
+#include <fcppt/filesystem/remove_filename.hpp>
 #include <boost/foreach.hpp>
 
 sgetris::texture_manager::texture_manager(
@@ -34,15 +35,15 @@ sgetris::texture_manager::texture_manager(
 
 void
 sgetris::texture_manager::load(
-	sge::filesystem::path const &_fn)
+	fcppt::filesystem::path const &_fn)
 {
 	sge::parse::ini::section_vector s;
 	if (!parse_file(_fn,s))
 		throw exception(
-			SGE_TEXT("Invalid texture file \"")+_fn.string()+SGE_TEXT("\""));
+			FCPPT_TEXT("Invalid texture file \"")+_fn.string()+FCPPT_TEXT("\""));
 	
-	sge::filesystem::path const dir = 
-		sge::filesystem::remove_filename(
+	fcppt::filesystem::path const dir = 
+		fcppt::filesystem::remove_filename(
 			_fn);
 	
 	BOOST_FOREACH(sge::parse::ini::section_vector::const_reference r,s)
@@ -51,7 +52,7 @@ sgetris::texture_manager::load(
 		{
 			if (texture_map_.find(e.name) != texture_map_.end())
 				throw exception(
-					SGE_TEXT("Got two textures named \"")+e.name+SGE_TEXT("\""));
+					FCPPT_TEXT("Got two textures named \"")+e.name+FCPPT_TEXT("\""));
 
 			texture_map_.insert(
 				texture_map::value_type(
@@ -66,14 +67,14 @@ sgetris::texture_manager::load(
 
 sge::texture::const_part_ptr const
 sgetris::texture_manager::texture(
-	sge::string const &_s) const
+	fcppt::string const &_s) const
 {
 	texture_map::const_iterator const i = 
 		texture_map_.find(
 			_s);
 	if (i == texture_map_.end())
 		throw exception(
-			SGE_TEXT("Couldn't find texture \"")+_s+SGE_TEXT("\""));
+			FCPPT_TEXT("Couldn't find texture \"")+_s+FCPPT_TEXT("\""));
 	return 
 		i->second;
 }

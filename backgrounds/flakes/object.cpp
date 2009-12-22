@@ -8,16 +8,16 @@
 #include "../../texture_manager.hpp"
 #include "../../media_path.hpp"
 #include "../../program_options.hpp"
-#include <sge/math/dim/structure_cast.hpp>
-#include <sge/math/null.hpp>
+#include <fcppt/math/dim/structure_cast.hpp>
+#include <fcppt/math/null.hpp>
 #include <sge/renderer/device.hpp>
 #include <sge/image/loader.hpp>
-#include <sge/filesystem/path.hpp>
+#include <fcppt/filesystem/path.hpp>
 #include <sge/time/second.hpp>
 #include <sge/time/unit.hpp>
-#include <sge/random/uniform.hpp>
-#include <sge/random/inclusive_range.hpp>
-#include <sge/math/dim/make.hpp>
+#include <fcppt/random/uniform.hpp>
+#include <fcppt/random/inclusive_range.hpp>
+#include <fcppt/math/dim/make.hpp>
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/state/bool.hpp>
 #include <sge/renderer/state/color.hpp>
@@ -25,9 +25,9 @@
 #include <sge/image/colors.hpp>
 #include <sge/sprite/default_equal.hpp>
 
-#include <sge/math/vector/output.hpp>
-#include <sge/math/dim/output.hpp>
-#include <sge/text.hpp>
+#include <fcppt/math/vector/output.hpp>
+#include <fcppt/math/dim/output.hpp>
+#include <fcppt/text.hpp>
 
 #include <boost/program_options.hpp>
 
@@ -95,16 +95,16 @@ sgetris::backgrounds::flakes::object::object(
 	flakes_()
 {
 	texture_manager_.load(
-		media_path()/SGE_TEXT("backgrounds")/SGE_TEXT("flakes")/SGE_TEXT("textures.ini"));
-	sge::random::uniform<sprite::scalar> 
+		media_path()/FCPPT_TEXT("backgrounds")/FCPPT_TEXT("flakes")/FCPPT_TEXT("textures.ini"));
+	fcppt::random::uniform<sprite::scalar> 
 		xposition_rng(
-			sge::random::make_inclusive_range(
-				sge::math::null<sprite::scalar>(),
+			fcppt::random::make_inclusive_range(
+				fcppt::math::null<sprite::scalar>(),
 				static_cast<sprite::scalar>(
 					_renderer->screen_size().w()))),
 		yposition_rng(
-			sge::random::make_inclusive_range(
-				sge::math::null<sprite::scalar>(),
+			fcppt::random::make_inclusive_range(
+				fcppt::math::null<sprite::scalar>(),
 				static_cast<sprite::scalar>(
 					_renderer->screen_size().h())));
 
@@ -124,15 +124,15 @@ sgetris::backgrounds::flakes::object::object(
 			_program_options["flakes-speed-min"].as<real::value_type>(),
 			_program_options["flakes-speed-max"].as<real::value_type>());
 	
-	sge::random::uniform<real::value_type> rng(
-		sge::random::make_inclusive_range(
+	fcppt::random::uniform<real::value_type> rng(
+		fcppt::random::make_inclusive_range(
 			static_cast<real::value_type>(
 				0),
 			static_cast<real::value_type>(
 				1)));
 
 	for(
-		flake_count i = sge::math::null<flake_count>(),
+		flake_count i = fcppt::math::null<flake_count>(),
 		fc = _program_options["flakes-count"].as<flake_count>(); 
 		i < fc; 
 		++i)
@@ -146,8 +146,8 @@ sgetris::backgrounds::flakes::object::object(
 			yposition_rng());
 
 		sprite::dim const size(
-			sge::math::dim::structure_cast<sprite::dim>(
-				sge::math::dim::make(
+			fcppt::math::dim::structure_cast<sprite::dim>(
+				fcppt::math::dim::make(
 					size_range.first + v * (size_range.second - size_range.first),
 					size_range.first + v * (size_range.second - size_range.first))));
 
@@ -169,7 +169,7 @@ sgetris::backgrounds::flakes::object::object(
 						position)
 					.texture(
 						texture_manager_.texture(
-							SGE_TEXT("flake")))
+							FCPPT_TEXT("flake")))
 					.size(
 						size),
 				speed));
@@ -191,7 +191,7 @@ sgetris::backgrounds::flakes::object::update(
 	clock_.update(
 		_td);
 	real const d(
-		sge::math::real_cast<real>(
+		fcppt::math::real_cast<real>(
 			frame_timer_.elapsed_frames()));
 	frame_timer_.reset();
 	for (flake_sequence::iterator i = flakes_.begin(); i != flakes_.end(); ++i)

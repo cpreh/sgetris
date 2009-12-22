@@ -2,18 +2,18 @@
 #define SGETRIS_SOUND_MANAGER_HPP_HPP_INCLUDED
 
 #include <sge/audio/multi_loader.hpp>
-#include <sge/audio/player_fwd.hpp>
-#include <sge/audio/sound_fwd.hpp>
-#include <sge/filesystem/path.hpp>
-#include <sge/string.hpp>
-#include <sge/noncopyable.hpp>
+#include <sge/audio/player_ptr.hpp>
+#include <sge/audio/sound_ptr.hpp>
+#include <fcppt/filesystem/path.hpp>
+#include <fcppt/string.hpp>
+#include <fcppt/noncopyable.hpp>
 #include <map>
 
 namespace sgetris
 {
 class sound_manager
 {
-SGE_NONCOPYABLE(sound_manager)
+FCPPT_NONCOPYABLE(sound_manager)
 public:
 	explicit
 	sound_manager(
@@ -22,16 +22,16 @@ public:
 	
 	void
 	load(
-		sge::filesystem::path const &);
+		fcppt::filesystem::path const &);
 	
 	sge::audio::sound_ptr const
 	sound(
-		sge::string const &);
+		fcppt::string const &);
 private:
 	typedef
 	std::map
 	<
-		sge::string,
+		fcppt::string,
 		sge::audio::sound_ptr
 	>
 	sound_map;

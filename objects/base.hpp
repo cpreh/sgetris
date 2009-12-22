@@ -2,7 +2,7 @@
 #define SGETRIS_OBJECTS_BASE_HPP_HPP_INCLUDED
 
 #include "../time_delta.hpp"
-#include <sge/noncopyable.hpp>
+#include <fcppt/noncopyable.hpp>
 
 namespace sgetris
 {
@@ -10,7 +10,7 @@ namespace objects
 {
 class base
 {
-SGE_NONCOPYABLE(base)
+FCPPT_NONCOPYABLE(base)
 protected:
 	explicit
 	base();

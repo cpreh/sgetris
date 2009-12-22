@@ -7,10 +7,9 @@
 #include "../../sprite/object.hpp"
 #include "../../sprite/scalar.hpp"
 #include "../../sprite/dim.hpp"
-#include <sge/noncopyable.hpp>
+#include <fcppt/noncopyable.hpp>
 #include <sge/renderer/screen_size.hpp>
-#include <sge/math/vector/basic_impl.hpp>
-#include <sge/random/uniform.hpp>
+#include <fcppt/random/uniform.hpp>
 
 namespace sgetris
 {
@@ -20,7 +19,7 @@ namespace flakes
 {
 class flake
 {
-SGE_NONCOPYABLE(flake)
+FCPPT_NONCOPYABLE(flake)
 public:
 	explicit
 	flake(
@@ -39,7 +38,7 @@ private:
 	point position_;
 	real speed_;
 	sprite::dim screen_size_;
-	sge::random::uniform<real::value_type> x_rng_;
+	fcppt::random::uniform<real::value_type> x_rng_;
 
 	void
 	reset();

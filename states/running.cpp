@@ -8,14 +8,15 @@
 #include "../iterator_picker.hpp"
 #include "../texture_manager.hpp"
 #include "../sprite/scalar.hpp"
+#include "../log/object.hpp"
 #include <sge/systems/instance.hpp>
-#include <sge/math/dim/arithmetic.hpp>
-#include <sge/math/dim/structure_cast.hpp>
-#include <sge/math/dim/basic_impl.hpp>
-#include <sge/math/dim/output.hpp>
-#include <sge/math/dim/input.hpp>
-#include <sge/container/field_impl.hpp>
-#include <sge/cerr.hpp>
+#include <fcppt/math/dim/arithmetic.hpp>
+#include <fcppt/math/dim/structure_cast.hpp>
+#include <fcppt/math/dim/basic_impl.hpp>
+#include <fcppt/math/dim/output.hpp>
+#include <fcppt/math/dim/input.hpp>
+#include <fcppt/container/field_impl.hpp>
+#include <fcppt/io/cerr.hpp>
 #include <boost/program_options.hpp>
 
 namespace
@@ -28,8 +29,8 @@ public:
 		sgetris::program_options().add_options()
 			(
 				"field-size",
-				boost::program_options::value<sgetris::states::running::field::dim_type>()->default_value(
-					sgetris::states::running::field::dim_type(
+				boost::program_options::value<sgetris::states::running::field::dim>()->default_value(
+					sgetris::states::running::field::dim(
 						10,
 						20)),
 				"Field size")
@@ -50,6 +51,15 @@ private:
 } options;
 }
 
+namespace
+{
+fcppt::log::object 
+mylogger(
+	fcppt::log::parameters::inherited(
+		sgetris::log::object(),
+		FCPPT_TEXT("running")));
+}
+
 sgetris::states::running::running(
 	my_context _ctx)
 :
@@ -63,7 +73,7 @@ sgetris::states::running::running(
 	upcoming_(),
 	objects_(),
 	field_(
-		/*context<machine>().program_options_map()["field-size"].as<field::dim_type>()*/),
+		context<machine>().program_options_map()["field-size"].as<field::dim>()),
 	ss_(
 		context<machine>().systems().renderer())
 {
@@ -75,12 +85,10 @@ boost::statechart::result
 sgetris::states::running::react(
 	events::tick const &t)
 {
-	sge::cerr << "tick event\n";
 	for (object_sequence::iterator i = objects_.begin(); i != objects_.end();)
 	{
 		if ((*i)->can_be_removed())
 		{
-			sge::cerr << "erasing object\n";
 			i = 
 				objects_.erase(
 					i);
@@ -141,7 +149,7 @@ sgetris::states::running::generate_upcoming_list()
 
 	for(
 		upcoming_sequence::size_type i = 
-			sge::math::null<upcoming_sequence::size_type>(); 
+			fcppt::math::null<upcoming_sequence::size_type>(); 
 		i < upcoming_count; 
 		++i)
 	{
@@ -151,8 +159,8 @@ sgetris::states::running::generate_upcoming_list()
 		parser::stone_template::size_type const 
 			maxdim = 
 				std::max(
-					it->dim().w(),
-					it->dim().h());
+					it->dimension().w(),
+					it->dimension().h());
 
 		iterators.push_back(
 			std::make_pair(
@@ -160,7 +168,7 @@ sgetris::states::running::generate_upcoming_list()
 				aligner.insert(
 					sprite::dim(
 						static_cast<sprite::scalar>(maxdim) * 
-						sge::math::dim::structure_cast<sprite::dim>(
+						fcppt::math::dim::structure_cast<sprite::dim>(
 							block_dim_)))));
 	}
 
@@ -168,7 +176,7 @@ sgetris::states::running::generate_upcoming_list()
 
 	sge::texture::const_part_ptr const block_texture = 
 		context<machine>().texture_manager().texture(
-			SGE_TEXT("block"));
+			FCPPT_TEXT("block"));
 
 	BOOST_FOREACH(iterator_container::const_reference its,iterators)
 	{
@@ -178,19 +186,19 @@ sgetris::states::running::generate_upcoming_list()
 		parser::stone_template::size_type const 
 			maxdim = 
 				std::max(
-					t.dim().w(),
-					t.dim().h());
+					t.dimension().w(),
+					t.dimension().h());
 
 		field r(
-			field::dim_type(
+			field::dim(
 				maxdim,
 				maxdim));
 
-		for (field::size_type y = sge::math::null<field::size_type>(); y < maxdim; ++y)
+		for (field::size_type y = fcppt::math::null<field::size_type>(); y < maxdim; ++y)
 		{
-			for (field::size_type x = sge::math::null<field::size_type>(); x < maxdim; ++x)
+			for (field::size_type x = fcppt::math::null<field::size_type>(); x < maxdim; ++x)
 			{
-				if (x >= t.dim().w() || y >= t.dim().h())
+				if (x >= t.dimension().w() || y >= t.dimension().h())
 					continue;
 
 				objects_.push_back(
@@ -213,7 +221,7 @@ sgetris::states::running::generate_upcoming_list()
 									block_dim_))));
 
 				r.pos(
-					field::vector_type(
+					field::vector(
 						x,
 						y)) = objects_.back();
 			}
@@ -242,7 +250,18 @@ sgetris::states::running::calculate_rects()
 		block_height = 
 			field_height/
 			static_cast<sprite::scalar>(
-				field_.dim().h());
+				field_.dimension().h());
+	
+	// FIXME: log what's calculated here
+	FCPPT_LOG_DEBUG(
+		mylogger,
+		fcppt::log::_ 
+			<< FCPPT_TEXT("margin_value is ") 
+			<< margin_value
+			<< FCPPT_TEXT(", field height is ")
+			<< field_height
+			<< FCPPT_TEXT(", block_height is ")
+			<< block_height);
 
 	block_dim_ = 
 		sprite::dim(
@@ -258,17 +277,17 @@ sgetris::states::running::calculate_rects()
 				static_cast<sprite::scalar>(
 					block_height * 
 					static_cast<sprite::scalar>(
-						field_.dim().w())),
+						field_.dimension().w())),
 				field_height));
 	
 	// calculate the height of the largest stone, multiply by the number of upcoming pieces and get the height of the upcoming box
 	parser::stone_template::size_type max_height = 
-		possible_stones_.front().dim().h();
+		possible_stones_.front().dimension().h();
 	BOOST_FOREACH(parser::stone_template const &r,possible_stones_)
 		max_height = 
 			std::max(
 				max_height,
-				r.dim().h());
+				r.dimension().h());
 	
 	sprite::scalar const 
 		upcoming_height = 

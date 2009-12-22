@@ -1,6 +1,6 @@
 #include "standard.hpp"
 #include "../media_path.hpp"
-#include <sge/text.hpp>
+#include <fcppt/text.hpp>
 
 bool
 sgetris::game_logics::standard::fall_down_expired() const
@@ -20,7 +20,7 @@ sgetris::game_logics::standard::level() const
 	return 0;
 }
 
-sge::signal::auto_connection
+fcppt::signal::auto_connection
 sgetris::game_logics::standard::register_level_up(
 	level_up_callback const &_f)
 {
@@ -44,9 +44,9 @@ sgetris::game_logics::standard::row_cleared()
 {
 }
 
-sge::filesystem::path const
+fcppt::filesystem::path const
 sgetris::game_logics::standard::stone_file() const
 {
 	return 
-		media_path()/SGE_TEXT("stones")/SGE_TEXT("standard.txt");
+		media_path()/FCPPT_TEXT("stones")/FCPPT_TEXT("standard.txt");
 }

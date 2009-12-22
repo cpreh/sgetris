@@ -1,9 +1,9 @@
 #include "context.hpp"
-#include <sge/log/context.hpp>
+#include <fcppt/log/context.hpp>
 
-sge::log::context &
+fcppt::log::context &
 sgetris::log::context()
 {
-	static sge::log::context global_;
+	static fcppt::log::context global_;
 	return global_;
 }

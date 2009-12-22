@@ -68,7 +68,8 @@ FILE(GLOB_RECURSE collectionsfiles
 	events/*.cpp
 	objects/*.cpp
 	log/*.cpp
-	game_logics/*.cpp)
+	game_logics/*.cpp
+	layouter/*.cpp)
 
 ADD_EXECUTABLE(sgetris ${basefiles} ${collectionsfiles})
 TARGET_LINK_LIBRARIES(sgetris sgecore)

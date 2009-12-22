@@ -2,7 +2,7 @@
 #define SGETRIS_BACKGROUNDS_BASE_HPP_HPP_INCLUDED
 
 #include "../time_delta.hpp"
-#include <sge/noncopyable.hpp>
+#include <fcppt/noncopyable.hpp>
 
 namespace sgetris
 {
@@ -10,7 +10,7 @@ namespace backgrounds
 {
 class base
 {
-SGE_NONCOPYABLE(base)
+FCPPT_NONCOPYABLE(base)
 protected:
 	base();
 public:
