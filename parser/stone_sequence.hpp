@@ -2,6 +2,7 @@
 #define SGETRIS_PARSER_STONE_SEQUENCE_HPP_HPP_INCLUDED
 
 #include "stone_template.hpp"
+#include <vector>
 
 namespace sgetris
 {

@@ -11,8 +11,10 @@ namespace parser
 typedef
 fcppt::container::field
 <
-	bool,
 	fcppt::container::raw_vector
+	<
+		bool
+	>
 >
 stone_template;
 }
