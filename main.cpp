@@ -89,7 +89,6 @@ try
 				true),
 			"Show frames per second");
 			
-
 	sgetris::log_switcher 
 		sge_log(
 			&sgetris::program_options,

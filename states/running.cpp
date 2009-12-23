@@ -4,6 +4,7 @@
 #include "../game_logics/standard.hpp"
 #include "../parser/parse_file.hpp"
 #include "../objects/sprite_block.hpp"
+#include "../layouter/object.hpp"
 #include "../rectangle_aligner.hpp"
 #include "../iterator_picker.hpp"
 #include "../texture_manager.hpp"
@@ -15,6 +16,7 @@
 #include <fcppt/math/dim/basic_impl.hpp>
 #include <fcppt/math/dim/output.hpp>
 #include <fcppt/math/dim/input.hpp>
+#include <fcppt/math/box/output.hpp>
 #include <fcppt/container/field_impl.hpp>
 #include <fcppt/io/cerr.hpp>
 #include <boost/program_options.hpp>
@@ -41,11 +43,11 @@ public:
 						2)),
 				"The number of upcoming stones to be displayed")
 			(
-				"margins",
+				"spacing",
 				boost::program_options::value<sgetris::real::value_type>()->default_value(
 					static_cast<sgetris::real::value_type>(
 						0.01)),
-				"Size of the margins between hud/field/upcoming stones in percent of the screen height");
+				"Size of the spacing between hud/field/upcoming stones in percent of the screen width");
 	}
 private:
 } options;
@@ -235,19 +237,22 @@ sgetris::states::running::calculate_rects()
 	sge::renderer::screen_size const screen_size = 
 		context<machine>().systems().renderer()->screen_size();
 
+	real::value_type const spacing = 
+		context<machine>().program_options_map()["spacing"].as<real::value_type>();
+	
+	sgetris::layouter::object top_layout(
+		sprite::rect(
+			sprite::vector::null(),
+			fcppt::math::dim::structure_cast<sprite::dim>(
+				screen_size)),
+		sgetris::layouter::alignment::horizontal,
+		spacing);
+
 	sprite::scalar const 
-		margin_value = 
-			static_cast<sprite::scalar>(
-				static_cast<real::value_type>(
-					screen_size.h()) * 
-				context<machine>().program_options_map()["margins"].as<real::value_type>()),
 		field_height = 
 			static_cast<sprite::scalar>(
-				screen_size.h()) - 
-			static_cast<sprite::scalar>(
-				2)*
-			margin_value,
-		block_height = 
+				screen_size.h()),
+		block_size = 
 			field_height/
 			static_cast<sprite::scalar>(
 				field_.dimension().h());
@@ -256,73 +261,105 @@ sgetris::states::running::calculate_rects()
 	FCPPT_LOG_DEBUG(
 		mylogger,
 		fcppt::log::_ 
-			<< FCPPT_TEXT("margin_value is ") 
-			<< margin_value
-			<< FCPPT_TEXT(", field height is ")
+			<< FCPPT_TEXT("field height is ")
 			<< field_height
-			<< FCPPT_TEXT(", block_height is ")
-			<< block_height);
+			<< FCPPT_TEXT(", field width is ")
+			<< (block_size * field_.dimension().w())
+			<< FCPPT_TEXT(", block_size is ")
+			<< block_size);
 
 	block_dim_ = 
 		sprite::dim(
-			block_height,
-			block_height);
+			block_size,
+			block_size);
 	
-	field_rect_ = 
-		sprite::rect(
-			sprite::vector(
-				margin_value,
-				margin_value),
-			sprite::dim(
+	layouter::object field_layout(
+		top_layout,
+		layouter::object::optional_pair(
+			layouter::object::dimension_pair(
+				layouter::stretch::fixed,
 				static_cast<sprite::scalar>(
-					block_height * 
+					block_size * 
 					static_cast<sprite::scalar>(
-						field_.dimension().w())),
-				field_height));
+						field_.dimension().w()))),
+				fcppt::optional<sprite::scalar>()),
+		layouter::alignment::horizontal,
+		fcppt::math::null<real::value_type>());
 	
-	// calculate the height of the largest stone, multiply by the number of upcoming pieces and get the height of the upcoming box
-	parser::stone_template::size_type max_height = 
-		possible_stones_.front().dimension().h();
+	layouter::object right_layout(
+		top_layout,
+		layouter::object::optional_pair(),
+		layouter::alignment::vertical,
+		spacing);
+
+	// calculate the maximum height and width of a stone multiply by the number of upcoming pieces and get the height/width of the upcoming box
+	parser::stone_template::size_type 
+		max_height = 
+			possible_stones_.front().dimension().h(),
+		max_width = 
+			possible_stones_.front().dimension().w();
+
 	BOOST_FOREACH(parser::stone_template const &r,possible_stones_)
+	{
 		max_height = 
 			std::max(
 				max_height,
 				r.dimension().h());
-	
-	sprite::scalar const 
-		upcoming_height = 
-			static_cast<sprite::scalar>(
-				max_height)*
-			static_cast<sprite::scalar>(
-				context<machine>().program_options_map()["upcoming-count"].as<upcoming_sequence::size_type>()),
-		remaining_width = 
-			screen_size.w() - 
-			margin_value - 
-			field_rect_.w() - 
-			margin_value - 
-			/* insert hud and upcoming here */
-			margin_value;
-	
-	upcoming_rect_ = 
-		sprite::rect(
-			sprite::vector(
-				margin_value,
-				field_rect_.w() + 
-				margin_value),
-			sprite::dim(
-				remaining_width,
-				upcoming_height));
-	
-	hud_rect_ = 
-		sprite::rect(
-			sprite::vector(
-				upcoming_rect_.left(),
-				upcoming_rect_.bottom() + margin_value),
-			sprite::dim(
-				upcoming_rect_.w(),
+		max_width = 
+			std::max(
+				max_width,
+				r.dimension().w());
+	}
+
+	FCPPT_LOG_DEBUG(
+		mylogger,
+		fcppt::log::_ 
+			<< FCPPT_TEXT("maximum height is  ")
+			<< max_height
+			<< FCPPT_TEXT(", maximum width is ")
+			<< max_width);
+
+	layouter::object upcoming_layout(
+		right_layout,
+		layouter::object::optional_pair(
+			layouter::object::dimension_pair(
+				layouter::stretch::minimal,
 				static_cast<sprite::scalar>(
-					screen_size.h() - 
-					margin_value - 
-					upcoming_rect_.h() - 
-					margin_value)));
+					max_height)*
+				block_size*
+				static_cast<sprite::scalar>(
+					context<machine>().program_options_map()["upcoming-count"].as<upcoming_sequence::size_type>())),
+			static_cast<sprite::scalar>(
+				max_width*block_size)),
+		layouter::alignment::horizontal,
+		fcppt::math::null<real::value_type>());
+	
+	layouter::object hud_layout(
+		right_layout,
+		layouter::object::optional_pair(),
+		layouter::alignment::horizontal,
+		fcppt::math::null<real::value_type>());
+	
+	top_layout.compile();
+
+	FCPPT_LOG_DEBUG(
+		mylogger,
+		fcppt::log::_ 
+			<< FCPPT_TEXT("calculated rects: top: ")
+			<< top_layout.calculated_rect()
+			<< FCPPT_TEXT(", field_layout: ")
+			<< field_layout.calculated_rect()
+			<< FCPPT_TEXT(", right_layout: ")
+			<< right_layout.calculated_rect()
+			<< FCPPT_TEXT(", upcoming_layout: ")
+			<< upcoming_layout.calculated_rect()
+			<< FCPPT_TEXT(", hud_layout: ")
+			<< hud_layout.calculated_rect());
+	
+	field_rect_ = 
+		field_layout.calculated_rect();
+	upcoming_rect_ =
+		upcoming_layout.calculated_rect();
+	hud_rect_ =
+		hud_layout.calculated_rect();
 }

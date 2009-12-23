@@ -112,11 +112,6 @@ void
 sgetris::layouter::object::compile(
 	rect const &top_rect)
 {
-	// DEBUG
-	fcppt::log::activate_levels(
-		mylogger,
-		fcppt::log::level::debug);
-
 	calculated_rect_ = 
 		top_rect;
 
@@ -252,14 +247,15 @@ sgetris::layouter::object::compile(
 					master_component = s.master->second;
 				break;
 				case stretch::minimal:
+					master_component = 
+						s.master->second;
 					// We can stretch this widget, but only if there are no widgets which
 					// have no size
 					if (!nonsized_widgets)
 					{
 						FCPPT_ASSERT(
 							minimum_widgets);
-						master_component = 
-							s.master->second + 
+						master_component += 
 							remaining_space_without_spacing/
 							static_cast<scalar>(
 								minimum_widgets);

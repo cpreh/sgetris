@@ -9,8 +9,10 @@
 #include <fcppt/math/almost_zero.hpp>
 #include <fcppt/math/vector/basic_impl.hpp>
 #include <fcppt/math/dim/basic_impl.hpp>
+#include <fcppt/math/dim/output.hpp>
 #include <fcppt/container/field_impl.hpp>
 #include <fcppt/lexical_cast.hpp>
+#include <fcppt/io/cerr.hpp>
 #include <boost/foreach.hpp>
 #include <algorithm>
 #include <vector>
@@ -41,9 +43,9 @@ sgetris::parser::parse_stream(
 
 		stone_template t(
 			stone_template::dim(
-				static_cast<stone_template::scalar>(
+				static_cast<stone_template::size_type>(
 					longest_line),
-				static_cast<stone_template::scalar>(
+				static_cast<stone_template::size_type>(
 					r.size())));
 
 		for(
@@ -58,7 +60,7 @@ sgetris::parser::parse_stream(
 				x < t.dimension().w(); 
 				++x)
 			{
-				if (r[y].size() <= x)
+				if (x >= r[y].size())
 				{
 					t.pos(
 						stone_template::vector(
@@ -80,7 +82,7 @@ sgetris::parser::parse_stream(
 				t.pos(
 					stone_template::vector(
 						x,
-						y)) = r[y][x] == FCPPT_TEXT(' ') ? false : true;
+						y)) = (r[y][x] != FCPPT_TEXT(' '));
 			}
 		}
 

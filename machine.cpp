@@ -1,4 +1,7 @@
 #include "machine.hpp"
+#include "media_path.hpp"
+#include "texture_manager.hpp"
+#include <fcppt/text.hpp>
 
 sgetris::machine::machine(
 	boost::program_options::variables_map &_program_options_map,
@@ -12,6 +15,8 @@ sgetris::machine::machine(
 	texture_manager_(
 		_texture_manager)
 {
+	texture_manager_.load(
+		media_path()/FCPPT_TEXT("textures.ini"));
 }
 
 boost::program_options::variables_map &
