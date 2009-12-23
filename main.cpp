@@ -243,7 +243,7 @@ try
 
 	fcppt::io::cerr << "Am Ende von main\n";
 }
-catch(sge::exception const &e)
+catch(fcppt::exception const &e)
 {
 	fcppt::io::cerr << e.string() << FCPPT_TEXT('\n');
 	return EXIT_FAILURE;

@@ -1,8 +1,12 @@
 #include "parse_stream.hpp"
+#include "../explode.hpp"
+#include "../read_lines.hpp"
 #include "../exception.hpp"
+#include "../longest_element.hpp"
 #include <fcppt/string.hpp>
 #include <fcppt/text.hpp>
 #include <fcppt/math/null.hpp>
+#include <fcppt/math/almost_zero.hpp>
 #include <fcppt/math/vector/basic_impl.hpp>
 #include <fcppt/math/dim/basic_impl.hpp>
 #include <fcppt/container/field_impl.hpp>
@@ -11,72 +15,36 @@
 #include <algorithm>
 #include <vector>
 
-namespace
-{
-template<typename T>
-typename T::value_type::size_type
-longest_element(
-	T const &t)
-{
-	typename T::value_type::size_type longest = 
-		fcppt::math::null<typename T::value_type::size_type>();
-	BOOST_FOREACH(typename T::const_reference s,t)
-		longest = 
-			std::max(
-				longest,
-				s.size());
-	return 
-		longest;
-}
-}
-
 sgetris::parser::stone_sequence const
 sgetris::parser::parse_stream(
 	fcppt::io::istream &_i)
 {
-	typedef
-	std::vector<fcppt::string>
-	string_sequence;
+	typedef std::vector<fcppt::string> string_vector;
 
 	stone_sequence stones;
-	string_sequence current_stone;
-
-	fcppt::string line;
-	bool last_line = true;
-	unsigned line_counter = 0;
-	while (std::getline(_i,line) || last_line)
+	
+	BOOST_FOREACH(
+		string_vector const &r,
+		explode(
+			read_lines(
+				_i),
+			fcppt::string(
+				FCPPT_TEXT(""))))
 	{
-		++line_counter;
-
-		if (_i.eof())
-			last_line = false;
-
-		if (!line.empty() && !_i.eof())
-		{
-			current_stone.push_back(
-				line);
-			continue;
-		}
-
-		if (current_stone.empty())
+		if (r.empty())
 			throw exception(
-				FCPPT_TEXT("Too many empty lines encountered"));
+				FCPPT_TEXT("Encountered empty stone"));
 
 		fcppt::string::size_type const longest_line = 
 			longest_element(
-				current_stone);
-
-		if (longest_line == fcppt::math::null<fcppt::string::size_type>())
-			throw exception(
-				FCPPT_TEXT("No proper stones found"));
+				r);
 
 		stone_template t(
 			stone_template::dim(
 				static_cast<stone_template::scalar>(
 					longest_line),
 				static_cast<stone_template::scalar>(
-					current_stone.size())));
-
+					r.size())));
 
 		for(
 			stone_template::size_type y = 
@@ -90,7 +58,7 @@ sgetris::parser::parse_stream(
 				x < t.dimension().w(); 
 				++x)
 			{
-				if (current_stone[y].size() <= x)
+				if (r[y].size() <= x)
 				{
 					t.pos(
 						stone_template::vector(
@@ -99,27 +67,22 @@ sgetris::parser::parse_stream(
 					continue;
 				}
 
-				if (current_stone[y][x] != FCPPT_TEXT(' ') && current_stone[y][x] != FCPPT_TEXT('#'))
+				if (r[y][x] != FCPPT_TEXT(' ') && r[y][x] != FCPPT_TEXT('#'))
 					throw exception(
-						FCPPT_TEXT("Invalid somewhere around line ")+
-						fcppt::lexical_cast<fcppt::string>(
-							line_counter-y)+
-						FCPPT_TEXT(" of stones file: '")+
-						current_stone[y][x]+
+						fcppt::string(
+							FCPPT_TEXT("Invalid character encountered in stones file: "))+
+						r[y][x]+
 						FCPPT_TEXT("' numeric code: ")+
 						fcppt::lexical_cast<fcppt::string>(
 							static_cast<unsigned>(
-								current_stone[y][x])));
+								r[y][x])));
 
 				t.pos(
 					stone_template::vector(
 						x,
-						y)) = current_stone[y][x] == FCPPT_TEXT(' ') ? false : true;
+						y)) = r[y][x] == FCPPT_TEXT(' ') ? false : true;
 			}
 		}
-
-
-		current_stone.clear();
 
 		stones.push_back(
 			t);
