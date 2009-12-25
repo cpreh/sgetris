@@ -212,15 +212,9 @@ try
 
 		t = newtime;
 
-		sgetris::time_delta const diff = 
-			static_cast<sgetris::time_delta>(
-				diff_duration.count())*
-			static_cast<sgetris::time_delta>(
-				sge::time::duration::period::num)/
-			static_cast<sgetris::time_delta>(
-				sge::time::duration::period::den);
-
-		fcppt::io::cerr << "float diff is " << diff << "\n";
+		sgetris::time_delta const diff(
+			diff_duration.count()
+		);
 
 		sge::mainloop::dispatch();
 		sge::renderer::scoped_block const block_(

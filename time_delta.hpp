@@ -6,7 +6,7 @@
 namespace sgetris
 {
 typedef 
-float
+sge::time::unit
 time_delta;
 }
 
