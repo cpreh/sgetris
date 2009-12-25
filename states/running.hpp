@@ -17,6 +17,7 @@
 #include <fcppt/scoped_ptr.hpp>
 #include <fcppt/shared_ptr.hpp>
 #include <fcppt/container/field_decl.hpp>
+#include <vector>
 
 namespace sgetris
 {
@@ -34,7 +35,11 @@ public:
 	reactions;
 
 	typedef
-	fcppt::container::field<objects::weak_ptr>
+	fcppt::container::field<
+		std::vector<
+			objects::weak_ptr
+		>
+	>
 	field;
 
 	typedef
