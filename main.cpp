@@ -172,9 +172,6 @@ try
 			sys.renderer(),
 			tm));
 
-	sge::time::duration t = 
-		sge::time::now().time_since_epoch();
-	
 	sge::font::metrics_ptr const metrics(
 		sys.font_system()->create_font(
 			sge::config::media_path() / FCPPT_TEXT("fonts") / FCPPT_TEXT("default.ttf"),
@@ -200,6 +197,9 @@ try
 		tm);
 	m.initiate();
 
+	sge::time::duration t = 
+		sge::time::now().time_since_epoch();
+
 	while(running)
 	{
 		frames_counter.update();
@@ -219,6 +219,8 @@ try
 				sge::time::duration::period::num)/
 			static_cast<sgetris::time_delta>(
 				sge::time::duration::period::den);
+
+		fcppt::io::cerr << "float diff is " << diff << "\n";
 
 		sge::mainloop::dispatch();
 		sge::renderer::scoped_block const block_(
