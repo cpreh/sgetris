@@ -3,7 +3,7 @@
 #include "../../sprite/rotation_type.hpp"
 #include <fcppt/math/dim/structure_cast.hpp>
 #include <fcppt/math/vector/structure_cast.hpp>
-#include <fcppt/random/inclusive_range.hpp>
+#include <fcppt/random/make_inclusive_range.hpp>
 #include <fcppt/math/twopi.hpp>
 #include <fcppt/math/pi.hpp>
 
@@ -18,21 +18,20 @@ sgetris::backgrounds::flakes::flake::flake(
 	sprite_(
 		_params.elements()),
 	starting_x_(
-		fcppt::math::real_cast<real>(
-			sprite_.x())),
+		static_cast<real>(sprite_.x())),
 	position_(
 		fcppt::math::vector::structure_cast<point>(
 			sprite_.pos())),
 	speed_(
-		fcppt::math::real_cast<real>(
+		static_cast<real>(
 			_speed)),
 	screen_size_(
 		fcppt::math::dim::structure_cast<sprite::dim>(
 			_screen_size)),
 	x_rng_(
 		fcppt::random::make_inclusive_range(
-			static_cast<real::value_type>(0),
-			static_cast<real::value_type>(screen_size_.w())))
+			static_cast<real>(0),
+			static_cast<real>(screen_size_.w())))
 {
 	FCPPT_ASSERT(
 		f_ >= real(0) && f_ <= real(1));
@@ -47,11 +46,11 @@ sgetris::backgrounds::flakes::flake::update(
 	real const 
 		inside_sin = 
 			position_.y()/
-			(f_ * fcppt::math::real_cast<real>(screen_size_.w())) * 
+			(f_ * static_cast<real>(screen_size_.w())) * 
 			real(
-				fcppt::math::twopi<real::value_type>()),
+				fcppt::math::twopi<real>()),
 		x_variance = 
-			fcppt::math::real_cast<real>(
+			static_cast<real>(
 				screen_size_.w()/3),
 		x_variance_val = 
 			f_ * x_variance,
@@ -59,7 +58,7 @@ sgetris::backgrounds::flakes::flake::update(
 			starting_x_ + 
 			real(
 				std::sin(
-					inside_sin.value()))*
+					inside_sin))*
 			x_variance_val;
 
 	position_.x() = 
@@ -68,17 +67,17 @@ sgetris::backgrounds::flakes::flake::update(
 	// TODO: structure_cast here, but it won't work with real yet
 	sprite_.x( 
 		static_cast<sprite::scalar>(
-			position_.x().value()));
+			position_.x()));
 	sprite_.y( 
 		static_cast<sprite::scalar>(
-			position_.y().value()));
+			position_.y()));
 	sprite_.rotation(
 		static_cast<sprite::rotation_type>(
 			std::sin(
-				inside_sin.value()/
-				static_cast<real::value_type>(2)) * 
-			fcppt::math::pi<real::value_type>()/
-			static_cast<real::value_type>(2)));
+				inside_sin/
+				static_cast<real>(2)) * 
+			fcppt::math::pi<real>()/
+			static_cast<real>(2)));
 	
 	if (sprite_.y() > screen_size_.h())
 		reset();
@@ -91,6 +90,6 @@ sgetris::backgrounds::flakes::flake::reset()
 		real(
 			x_rng_());
 	position_.y() = 
-		fcppt::math::real_cast<real>(
+		static_cast<real>(
 			-sprite_.h());
 }

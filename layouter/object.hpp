@@ -30,7 +30,7 @@ class object
 {
 public:
 	typedef 
-	sgetris::real::value_type 
+	sgetris::real
 	real;
 
 	typedef 

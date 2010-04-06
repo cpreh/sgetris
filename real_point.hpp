@@ -8,7 +8,7 @@ namespace sgetris
 typedef
 fcppt::math::vector::static_
 <
-	real::value_type,
+	real,
 	2u
 >::type
 real_point;

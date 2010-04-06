@@ -16,7 +16,7 @@
 #include <sge/time/second.hpp>
 #include <sge/time/unit.hpp>
 #include <fcppt/random/uniform.hpp>
-#include <fcppt/random/inclusive_range.hpp>
+#include <fcppt/random/make_inclusive_range.hpp>
 #include <fcppt/math/dim/make.hpp>
 #include <sge/renderer/state/list.hpp>
 #include <sge/renderer/state/bool.hpp>
@@ -47,26 +47,26 @@ public:
 				"Number of flakes")
 			(
 				"flakes-size-min",
-				boost::program_options::value<sgetris::real::value_type>()->default_value(
-					static_cast<sgetris::real::value_type>(
+				boost::program_options::value<sgetris::real>()->default_value(
+					static_cast<sgetris::real>(
 						0.05)),
 				"Minimum flake size (in percent of the screen)")
 			(
 				"flakes-size-max",
-				boost::program_options::value<sgetris::real::value_type>()->default_value(
-					static_cast<sgetris::real::value_type>(
+				boost::program_options::value<sgetris::real>()->default_value(
+					static_cast<sgetris::real>(
 						0.20)),
 				"Maximum flake size (in percent of the screen)")
 			(
 				"flakes-speed-min",
-				boost::program_options::value<sgetris::real::value_type>()->default_value(
-					static_cast<sgetris::real::value_type>(
+				boost::program_options::value<sgetris::real>()->default_value(
+					static_cast<sgetris::real>(
 						10)),
 				"Minimum flake speed (in pixels per second)")
 			(
 				"flakes-speed-max",
-				boost::program_options::value<sgetris::real::value_type>()->default_value(
-					static_cast<sgetris::real::value_type>(
+				boost::program_options::value<sgetris::real>()->default_value(
+					static_cast<sgetris::real>(
 						200)),
 				"Maximum flake speed (in pixels per second)");
 	}
@@ -108,27 +108,27 @@ sgetris::backgrounds::flakes::object::object(
 				static_cast<sprite::scalar>(
 					_renderer->screen_size().h())));
 
-	// Those pairs are real::value_type to avoid ugly casting below, they'll be cast
+	// Those pairs are real to avoid ugly casting below, they'll be cast
 	// one time sprite::scalar
-	std::pair<real::value_type,real::value_type> 
+	std::pair<real,real> 
 		size_range(
-			static_cast<real::value_type>(
+			static_cast<real>(
 				_renderer->screen_size().w())*
-			_program_options["flakes-size-min"].as<real::value_type>(),
-			static_cast<real::value_type>(
+			_program_options["flakes-size-min"].as<real>(),
+			static_cast<real>(
 				_renderer->screen_size().w())*
-			_program_options["flakes-size-max"].as<real::value_type>());
+			_program_options["flakes-size-max"].as<real>());
 	
-	std::pair<real::value_type,real::value_type>
+	std::pair<real,real>
 		speed_range(
-			_program_options["flakes-speed-min"].as<real::value_type>(),
-			_program_options["flakes-speed-max"].as<real::value_type>());
+			_program_options["flakes-speed-min"].as<real>(),
+			_program_options["flakes-speed-max"].as<real>());
 	
-	fcppt::random::uniform<real::value_type> rng(
+	fcppt::random::uniform<real> rng(
 		fcppt::random::make_inclusive_range(
-			static_cast<real::value_type>(
+			static_cast<real>(
 				0),
-			static_cast<real::value_type>(
+			static_cast<real>(
 				1)));
 
 	for(
@@ -138,7 +138,7 @@ sgetris::backgrounds::flakes::object::object(
 		++i)
 	{
 		// Roll the dice
-		real::value_type const v = 
+		real const v = 
 			rng();
 
 		sprite::vector const position(
@@ -191,7 +191,7 @@ sgetris::backgrounds::flakes::object::update(
 	clock_.update(
 		_td);
 	real const d(
-		fcppt::math::real_cast<real>(
+		static_cast<real>(
 			frame_timer_.elapsed_frames()));
 	frame_timer_.reset();
 	for (flake_sequence::iterator i = flakes_.begin(); i != flakes_.end(); ++i)

@@ -44,8 +44,8 @@ public:
 				"The number of upcoming stones to be displayed")
 			(
 				"spacing",
-				boost::program_options::value<sgetris::real::value_type>()->default_value(
-					static_cast<sgetris::real::value_type>(
+				boost::program_options::value<sgetris::real>()->default_value(
+					static_cast<sgetris::real>(
 						0.01)),
 				"Size of the spacing between hud/field/upcoming stones in percent of the screen width");
 	}
@@ -237,8 +237,8 @@ sgetris::states::running::calculate_rects()
 	sge::renderer::screen_size const screen_size = 
 		context<machine>().systems().renderer()->screen_size();
 
-	real::value_type const spacing = 
-		context<machine>().program_options_map()["spacing"].as<real::value_type>();
+	real const spacing = 
+		context<machine>().program_options_map()["spacing"].as<real>();
 	
 	sgetris::layouter::object top_layout(
 		sprite::rect(
@@ -284,7 +284,7 @@ sgetris::states::running::calculate_rects()
 						field_.dimension().w()))),
 				fcppt::optional<sprite::scalar>()),
 		layouter::alignment::horizontal,
-		fcppt::math::null<real::value_type>());
+		fcppt::math::null<real>());
 	
 	layouter::object right_layout(
 		top_layout,
@@ -332,13 +332,13 @@ sgetris::states::running::calculate_rects()
 			static_cast<sprite::scalar>(
 				max_width*block_size)),
 		layouter::alignment::horizontal,
-		fcppt::math::null<real::value_type>());
+		fcppt::math::null<real>());
 	
 	layouter::object hud_layout(
 		right_layout,
 		layouter::object::optional_pair(),
 		layouter::alignment::horizontal,
-		fcppt::math::null<real::value_type>());
+		fcppt::math::null<real>());
 	
 	top_layout.compile();
 

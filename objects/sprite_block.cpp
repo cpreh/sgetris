@@ -13,7 +13,7 @@ sgetris::objects::sprite_block::sprite_block(
 	target_(
 		pos_),
 	speed_(
-		static_cast<real::value_type>(
+		static_cast<real>(
 			20)),
 	dead_(
 		false)
@@ -34,7 +34,7 @@ sgetris::objects::sprite_block::update(
 	sprite_.pos(
 		fcppt::math::vector::structure_cast<sprite::vector>(
 			pos_ + 
-			((pos_-target_)/speed_.value())*static_cast<real::value_type>( _delta)));
+			((pos_-target_)/speed_)*static_cast<real>( _delta)));
 }
 
 void

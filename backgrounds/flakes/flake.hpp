@@ -38,7 +38,7 @@ private:
 	point position_;
 	real speed_;
 	sprite::dim screen_size_;
-	fcppt::random::uniform<real::value_type> x_rng_;
+	fcppt::random::uniform<real> x_rng_;
 
 	void
 	reset();

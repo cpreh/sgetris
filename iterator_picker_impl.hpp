@@ -1,7 +1,7 @@
 #ifndef SGETRIS_ITERATOR_PICKER_IMPL_HPP_HPP_INCLUDED
 #define SGETRIS_ITERATOR_PICKER_IMPL_HPP_HPP_INCLUDED
 
-#include <fcppt/random/last_exclusive_range.hpp>
+#include <fcppt/random/make_last_exclusive_range.hpp>
 #include <fcppt/math/null.hpp>
 #include <boost/next_prior.hpp>
 
