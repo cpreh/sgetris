@@ -10,11 +10,10 @@
 #include "log_switcher.hpp"
 #include "media_path.hpp"
 #include "parser/parse_file.hpp"
-#include <sge/audio/multi_loader.hpp>
-#include <sge/audio/sound.hpp>
 #include <sge/systems/instance.hpp>
 #include <sge/systems/list.hpp>
-#include <fcppt/signal/scoped_connection.hpp>
+#include <sge/systems/parameterless.hpp>
+#include <sge/systems/image_loader.hpp>
 #include <sge/config/media_path.hpp>
 #include <sge/renderer/refresh_rate_dont_care.hpp>
 #include <sge/renderer/no_multi_sampling.hpp>
@@ -25,10 +24,10 @@
 #include <sge/renderer/state/var.hpp>
 #include <sge/renderer/state/trampoline.hpp>
 #include <sge/renderer/filter/linear.hpp>
+#include <sge/audio/sound.hpp>
 #include <sge/audio/player.hpp>
+#include <sge/audio/loader_capabilities_field.hpp>
 #include <sge/log/global.hpp>
-#include <fcppt/log/activate_levels.hpp>
-#include <fcppt/chrono/duration_arithmetic.hpp>
 #include <sge/time/frames_counter.hpp>
 #include <sge/time/duration.hpp>
 #include <sge/time/now.hpp>
@@ -38,21 +37,29 @@
 #include <sge/font/system.hpp>
 #include <sge/font/text_size.hpp>
 #include <sge/log/global_context.hpp>
-#include <fcppt/make_shared_ptr.hpp>
 #include <sge/input/system.hpp>
 #include <sge/input/action.hpp>
 #include <sge/input/key_pair.hpp>
 #include <sge/input/key_code.hpp>
-#include <sge/image/multi_loader.hpp>
 #include <sge/image/colors.hpp>
+#include <sge/image/capabilities_field.hpp>
 #include <sge/mainloop/dispatch.hpp>
+#include <sge/extension_set.hpp>
+#include <sge/all_extensions.hpp>
+#include <fcppt/assign/make_container.hpp>
 #include <fcppt/math/dim/structure_cast.hpp>
 #include <fcppt/math/dim/input.hpp>
 #include <fcppt/math/dim/output.hpp>
 #include <fcppt/io/cout.hpp>
 #include <fcppt/container/field_impl.hpp>
+#include <fcppt/container/bitfield/basic_impl.hpp>
+#include <fcppt/log/activate_levels.hpp>
+#include <fcppt/chrono/duration_arithmetic.hpp>
+#include <fcppt/signal/scoped_connection.hpp>
 #include <fcppt/io/cerr.hpp>
-#include <sge/exception.hpp>
+#include <fcppt/make_shared_ptr.hpp>
+#include <fcppt/exception.hpp>
+#include <fcppt/text.hpp>
 #include <boost/spirit/home/phoenix/core/reference.hpp>
 #include <boost/spirit/home/phoenix/operator/self.hpp>
 #include <boost/assign/list_of.hpp>
@@ -127,38 +134,55 @@ try
 
 	sge::systems::instance sys(
 		sge::systems::list()
-		(sge::window::parameters(
-			FCPPT_TEXT("sgetris snowflaketest")
-		))
-		(sge::renderer::parameters(
-			sge::renderer::display_mode(
-				screens,
-				sge::renderer::bit_depth::depth32,
-				sge::renderer::refresh_rate_dont_care),
-			sge::renderer::depth_buffer::off,
-			sge::renderer::stencil_buffer::off,
-			sge::renderer::window_mode::windowed,
-			sge::renderer::vsync::on,
-			sge::renderer::no_multi_sampling
-		))
+		(
+			sge::window::parameters(
+				FCPPT_TEXT("sgetris snowflaketest")
+			)
+		)
+		(	sge::renderer::parameters(
+				sge::renderer::display_mode(
+					screens,
+					sge::renderer::bit_depth::depth32,
+					sge::renderer::refresh_rate_dont_care
+				),
+				sge::renderer::depth_buffer::off,
+				sge::renderer::stencil_buffer::off,
+				sge::renderer::window_mode::windowed,
+				sge::renderer::vsync::on,
+				sge::renderer::no_multi_sampling
+			)
+		)
 		(sge::systems::parameterless::input)
 		(sge::systems::parameterless::audio_player)
-		(sge::systems::parameterless::image)
-		(sge::systems::parameterless::font));
+		(
+			sge::systems::image_loader(
+				sge::image::capabilities_field::null(),
+				fcppt::assign::make_container<
+					sge::extension_set
+				>(
+					FCPPT_TEXT("png")
+				)
+			)
+		)
+		(
+			sge::systems::audio_loader(
+				sge::audio::loader_capabilities_field::null(),
+				sge::all_extensions
+			)
+		)
+		(sge::systems::parameterless::font)
+	);
 
 	bool running = true;
 
-	sge::audio::multi_loader audio_loader(
-		sys.plugin_manager());
 	sgetris::sound_manager sm(
-		audio_loader,
+		sys.audio_loader(),
 		sys.audio_player());
 	
-	sge::image::multi_loader image_loader(
-		sys.plugin_manager());
 	sgetris::texture_manager tm(
-		image_loader,
-		sys.renderer());
+		sys.image_loader(),
+		sys.renderer()
+	);
 
 	fcppt::signal::scoped_connection const cb(
 		sys.input_system()->register_callback(

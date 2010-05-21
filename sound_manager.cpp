@@ -12,7 +12,7 @@
 #include <boost/foreach.hpp>
 
 sgetris::sound_manager::sound_manager(
-	sge::audio::multi_loader &_loader,
+	sge::audio::multi_loader const &_loader,
 	sge::audio::player_ptr const _player)
 :
 	loader_(

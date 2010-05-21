@@ -25,7 +25,7 @@ mylogger(
 }
 
 sgetris::texture_manager::texture_manager(
-	sge::image::multi_loader &_loader,
+	sge::image::multi_loader const &_loader,
 	sge::renderer::device_ptr const _renderer)
 :
 	loader_(

@@ -17,7 +17,7 @@ FCPPT_NONCOPYABLE(sound_manager)
 public:
 	explicit
 	sound_manager(
-		sge::audio::multi_loader &,
+		sge::audio::multi_loader const &,
 		sge::audio::player_ptr);
 	
 	void
@@ -37,7 +37,7 @@ private:
 	sound_map;
 
 	sound_map sound_map_;
-	sge::audio::multi_loader &loader_;
+	sge::audio::multi_loader const &loader_;
 	sge::audio::player_ptr const player_;
 };
 }
