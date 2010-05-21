@@ -18,7 +18,7 @@ FCPPT_NONCOPYABLE(texture_manager)
 public:
 	explicit
 	texture_manager(
-		sge::image::multi_loader const &,
+		sge::image::multi_loader &,
 		sge::renderer::device_ptr);
 	
 	void
@@ -37,7 +37,7 @@ private:
 	>
 	texture_map;
 
-	sge::image::multi_loader const &loader_;
+	sge::image::multi_loader &loader_;
 	sge::renderer::device_ptr const renderer_;
 	sge::texture::default_creator<sge::texture::no_fragmented> texture_creator_;
 	sge::texture::manager texture_manager_;
