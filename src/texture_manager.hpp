@@ -1,30 +1,30 @@
 #ifndef SGETRIS_TEXTURE_MANAGER_HPP_HPP_INCLUDED
 #define SGETRIS_TEXTURE_MANAGER_HPP_HPP_INCLUDED
 
-#include <sge/image/multi_loader.hpp>
+#include <sge/image2d/system_fwd.hpp>
 #include <sge/renderer/device_fwd.hpp>
-#include <sge/texture/part_fwd.hpp>
-#include <sge/texture/default_creator.hpp>
-#include <sge/texture/no_fragmented.hpp>
+#include <sge/texture/const_part_ptr.hpp>
 #include <sge/texture/manager.hpp>
 #include <fcppt/noncopyable.hpp>
+#include <fcppt/string.hpp>
+#include <fcppt/filesystem/path.hpp>
 #include <map>
 
 namespace sgetris
 {
 class texture_manager
 {
-FCPPT_NONCOPYABLE(texture_manager)
+FCPPT_NONCOPYABLE(texture_manager);
 public:
 	explicit
 	texture_manager(
-		sge::image::multi_loader &,
-		sge::renderer::device_ptr);
-	
+		sge::image2d::system &,
+		sge::renderer::device &);
+
 	void
 	load(
 		fcppt::filesystem::path const &);
-	
+
 	sge::texture::const_part_ptr const
 	texture(
 		fcppt::string const &) const;
@@ -37,9 +37,8 @@ private:
 	>
 	texture_map;
 
-	sge::image::multi_loader &loader_;
-	sge::renderer::device_ptr const renderer_;
-	sge::texture::default_creator<sge::texture::no_fragmented> texture_creator_;
+	sge::image2d::system &loader_;
+	sge::renderer::device &renderer_;
 	sge::texture::manager texture_manager_;
 	texture_map texture_map_;
 };

@@ -19,7 +19,7 @@ namespace flakes
 {
 class flake
 {
-FCPPT_NONCOPYABLE(flake)
+FCPPT_NONCOPYABLE(flake);
 public:
 	explicit
 	flake(

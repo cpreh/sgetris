@@ -9,11 +9,8 @@
 #include "../../media_path.hpp"
 #include "../../program_options.hpp"
 #include <fcppt/math/dim/structure_cast.hpp>
-#include <fcppt/math/null.hpp>
 #include <sge/renderer/device.hpp>
-#include <sge/image/loader.hpp>
 #include <fcppt/filesystem/path.hpp>
-#include <sge/time/second.hpp>
 #include <sge/time/unit.hpp>
 #include <fcppt/random/uniform.hpp>
 #include <fcppt/random/make_inclusive_range.hpp>
@@ -25,6 +22,7 @@
 #include <sge/image/colors.hpp>
 #include <sge/sprite/default_equal.hpp>
 
+#include <fcppt/chrono/second.hpp>
 #include <fcppt/math/vector/output.hpp>
 #include <fcppt/math/dim/output.hpp>
 #include <fcppt/text.hpp>
@@ -76,7 +74,7 @@ private:
 
 sgetris::backgrounds::flakes::object::object(
 	boost::program_options::variables_map &_program_options,
-	sge::renderer::device_ptr const _renderer,
+	sge::renderer::device &_renderer,
 	// The flakes get the loader because in a later version more than one flake image could be loaded
 	// from a directory
 	texture_manager &_texture_manager)
@@ -87,43 +85,42 @@ sgetris::backgrounds::flakes::object::object(
 		_renderer),
 	clock_(),
 	frame_timer_(
-		sge::time::second(
-			static_cast<sge::time::unit>(
-				1)),
-		sge::time::activation_state::active,
-		clock_.callback()),
+		sgetris::diff_timer::parameters(
+			fcppt::chrono::second(1)
+		)
+	),
 	flakes_()
 {
 	texture_manager_.load(
 		media_path()/FCPPT_TEXT("backgrounds")/FCPPT_TEXT("flakes")/FCPPT_TEXT("textures.ini"));
-	fcppt::random::uniform<sprite::scalar> 
+	fcppt::random::uniform<sprite::scalar>
 		xposition_rng(
 			fcppt::random::make_inclusive_range(
-				fcppt::math::null<sprite::scalar>(),
+				static_cast<sprite::scalar>(0),
 				static_cast<sprite::scalar>(
 					_renderer->screen_size().w()))),
 		yposition_rng(
 			fcppt::random::make_inclusive_range(
-				fcppt::math::null<sprite::scalar>(),
+				static_cast<sprite::scalar>(0),
 				static_cast<sprite::scalar>(
-					_renderer->screen_size().h())));
+					_renderer.screen_size().h())));
 
 	// Those pairs are real to avoid ugly casting below, they'll be cast
 	// one time sprite::scalar
-	std::pair<real,real> 
+	std::pair<real,real>
 		size_range(
 			static_cast<real>(
-				_renderer->screen_size().w())*
+				_renderer.screen_size().w())*
 			_program_options["flakes-size-min"].as<real>(),
 			static_cast<real>(
-				_renderer->screen_size().w())*
+				_renderer.screen_size().w())*
 			_program_options["flakes-size-max"].as<real>());
-	
+
 	std::pair<real,real>
 		speed_range(
 			_program_options["flakes-speed-min"].as<real>(),
 			_program_options["flakes-speed-max"].as<real>());
-	
+
 	fcppt::random::uniform<real> rng(
 		fcppt::random::make_inclusive_range(
 			static_cast<real>(
@@ -132,13 +129,13 @@ sgetris::backgrounds::flakes::object::object(
 				1)));
 
 	for(
-		flake_count i = fcppt::math::null<flake_count>(),
-		fc = _program_options["flakes-count"].as<flake_count>(); 
-		i < fc; 
+		flake_count i = 0,
+		fc = _program_options["flakes-count"].as<flake_count>();
+		i < fc;
 		++i)
 	{
 		// Roll the dice
-		real const v = 
+		real const v =
 			rng();
 
 		sprite::vector const position(
@@ -151,15 +148,15 @@ sgetris::backgrounds::flakes::object::object(
 					size_range.first + v * (size_range.second - size_range.first),
 					size_range.first + v * (size_range.second - size_range.first))));
 
-		sprite::scalar const speed = 
+		sprite::scalar const speed =
 			static_cast<sprite::scalar>(
 				speed_range.first + v * (speed_range.second - speed_range.first));
-		
+
 		flakes_.push_back(
 			new flake(
 				real(
 					v),
-				_renderer->screen_size(),
+				_renderer.screen_size(),
 				sprite::parameters()
 					.system(
 						&ss_)
@@ -175,7 +172,7 @@ sgetris::backgrounds::flakes::object::object(
 				speed));
 	}
 
-	_renderer->state(
+	_renderer.state(
 		sge::renderer::state::list
 			(sge::renderer::state::bool_::clear_backbuffer = true)
 			(sge::renderer::state::color::clear_color

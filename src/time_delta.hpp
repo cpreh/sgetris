@@ -1,12 +1,12 @@
 #ifndef SGETRIS_TIME_DELTA_HPP_HPP_INCLUDED
 #define SGETRIS_TIME_DELTA_HPP_HPP_INCLUDED
 
-#include <sge/time/unit.hpp>
+#include <fcppt/chrono/rep.hpp>
 
 namespace sgetris
 {
-typedef 
-sge::time::unit
+typedef
+fcppt::chrono::rep
 time_delta;
 }
 

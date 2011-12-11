@@ -10,7 +10,7 @@ namespace backgrounds
 {
 class base
 {
-FCPPT_NONCOPYABLE(base)
+FCPPT_NONCOPYABLE(base);
 protected:
 	base();
 public:

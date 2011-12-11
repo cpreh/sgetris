@@ -1,22 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 
-PROJECT(sgetrisc)
+PROJECT(sgetris)
 
-SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
-
-IF(${CMAKE_BINARY_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
-	message(FATAL_ERROR "In-source builds are not permitted. Make a separate folder for building:\nmkdir build; cd build; cmake ..\nBefore that, remove the files that cmake just created:\nrm -rf CMakeCache.txt CMakeFiles")
-ENDIF()
-
-INCLUDE(FindPkgConfig)
-
-SET(CMAKE_VERBOSE_MAKEFILE ON)
-
-SET (Boost_ADDITIONAL_VERSIONS "1.41" "1.41.0" "1.42" "1.42.0")
-
-IF(MSVC)
-	SET(Boost_USE_STATIC_LIBS ON)
-ENDIF()
+INCLUDE(FcpptCMakeUtils)
 
 FIND_PACKAGE(
 	Boost 1.41.0 REQUIRED COMPONENTS
@@ -27,49 +13,151 @@ INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR})
 
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
-pkg_check_modules(SGE spacegameengine)
+# Find FCPPT
 
-LINK_DIRECTORIES(${SGE_LIBRARY_DIRS})
+FIND_PACKAGE(
+	Fcppt REQUIRED
+)
 
-IF (${CMAKE_COMPILER_IS_GNUCXX})
-	ADD_DEFINITIONS("-fvisibility=hidden -ansi -pedantic-errors -Wall"
-	"-Wextra -Wconversion -Wfloat-equal -Wredundant-decls"
-	"-Wstrict-null-sentinel -Winit-self -Woverloaded-virtual"
-	"-Wold-style-cast -Wnon-virtual-dtor -Wctor-dtor-privacy -Wsign-promo"
-	"-Wstrict-aliasing=1 -Wmissing-declarations -Wno-long-long")
+INCLUDE_DIRECTORIES(${FCPPT_INCLUDE_DIRS})
 
-	ADD_DEFINITIONS(-D BOOST_FILESYSTEM_NO_DEPRECATED)
-ELSEIF (MSVC)
-	ADD_DEFINITIONS ("/W3 /wd4512 /wd4355 /wd4800 /wd4996 /wd4714 /EHa /D_BIND_TO_CURRENT_VCLIBS_VERSION=1")
-ENDIF ()
+LINK_DIRECTORIES(${FCPPT_LIBRARY_DIRS})
 
-ADD_DEFINITIONS(${SGE_CFLAGS})
+# Find SGE
 
-SET(media_path ${CMAKE_INSTALL_PREFIX}/share/games/sgetris)
+FIND_PACKAGE(
+	SGE REQUIRED
+)
 
-SET_SOURCE_FILES_PROPERTIES(
-	media_path.cpp
-	PROPERTIES
-	COMPILE_FLAGS
-	-DMEDIA_PATH="\\\"${media_path}\\\"")
+INCLUDE_DIRECTORIES(${SGE_INCLUDE_DIRS})
 
-FILE(GLOB basefiles *.cpp)
+SET(
+	INSTALL_MEDIA_DIR
+	${INSTALL_DATA_DIR}/media
+)
 
-FILE(GLOB_RECURSE collectionsfiles
-	backgrounds/*.cpp
-	parser/*.cpp
-	states/*.cpp
-	events/*.cpp
-	objects/*.cpp
-	log/*.cpp
-	game_logics/*.cpp
-	layouter/*.cpp)
+INCLUDE(
+	SGECustomPath
+)
 
-ADD_EXECUTABLE(sgetris ${basefiles} ${collectionsfiles})
-TARGET_LINK_LIBRARIES(sgetris sgecore)
+SGE_CONFIG_ADD_CUSTOM_PATH(
+	sgetris
+	media
+	${CMAKE_SOURCE_DIR}/media
+	${INSTALL_MEDIA_DIR}
+)
+
+INSTALL(
+	DIRECTORY
+	${CMAKE_SOURCE_DIR}/media/
+	DESTINATION
+	${INSTALL_MEDIA_DIR}
+)
+
+SET(
+	SGETRIS_FILES
+	src/backgrounds/base.cpp
+	src/backgrounds/base.hpp
+	src/backgrounds/flakes/flake.cpp
+	src/backgrounds/flakes/flake.hpp
+	src/backgrounds/flakes/flake_count.hpp
+	src/backgrounds/flakes/flake_fwd.hpp
+	src/backgrounds/flakes/object.cpp
+	src/backgrounds/flakes/object.hpp
+	src/clock.hpp
+	src/diff_clock.hpp
+	src/events/tick.cpp
+	src/events/tick.hpp
+	src/exception.cpp
+	src/exception.hpp
+	src/explode.hpp
+	src/game_logics/base.cpp
+	src/game_logics/base.hpp
+	src/game_logics/standard.cpp
+	src/game_logics/standard.hpp
+	src/iterator_picker.hpp
+	src/iterator_picker_impl.hpp
+	src/layouter/alignment.hpp
+	src/layouter/object.cpp
+	src/layouter/object.hpp
+	src/layouter/pair.hpp
+	src/layouter/stretch.hpp
+	src/level.hpp
+	src/level_up_callback.hpp
+	src/level_up_callback_fn.hpp
+	src/log/context.cpp
+	src/log/context.hpp
+	src/log/object.cpp
+	src/log/object.hpp
+	src/log_switcher.cpp
+	src/log_switcher.hpp
+	src/longest_element.hpp
+	src/machine.cpp
+	src/machine.hpp
+	src/main.cpp
+	src/media_path.cpp
+	src/media_path.hpp
+	src/objects/base.cpp
+	src/objects/base.hpp
+	src/objects/base_fwd.hpp
+	src/objects/block.hpp
+	src/objects/sprite_block.cpp
+	src/objects/sprite_block.hpp
+	src/objects/weak_ptr.hpp
+	src/parser/parse_file.cpp
+	src/parser/parse_file.hpp
+	src/parser/parse_stream.cpp
+	src/parser/parse_stream.hpp
+	src/parser/stone_sequence.hpp
+	src/parser/stone_template.hpp
+	src/point.hpp
+	src/program_options.cpp
+	src/program_options.hpp
+	src/read_lines.cpp
+	src/read_lines.hpp
+	src/real.hpp
+	src/real_point.hpp
+	src/rectangle_aligner.hpp
+	src/rectangle_aligner_impl.hpp
+	src/score.hpp
+	src/sound_manager.cpp
+	src/sound_manager.hpp
+	src/sprite/choices.hpp
+	src/sprite/color.hpp
+	src/sprite/dim.hpp
+	src/sprite/object.hpp
+	src/sprite/parameters.hpp
+	src/sprite/rect.hpp
+	src/sprite/rotation_type.hpp
+	src/sprite/scalar.hpp
+	src/sprite/system.hpp
+	src/sprite/vector.hpp
+	src/states/running.cpp
+	src/states/running.hpp
+	src/states/running_fwd.hpp
+	src/texture_manager.cpp
+	src/texture_manager.hpp
+	src/texture_manager_fwd.hpp
+	src/time_delta.hpp
+)
+
+ADD_EXECUTABLE(
+	sgetris
+	${SGETRIS_FILES}
+)
+
+TARGET_LINK_LIBRARIES(
+	sgetris
+	${SGE_LIBRARIES}
+)
 
 IF(NOT MSVC)
 	TARGET_LINK_LIBRARIES(sgetris ${Boost_LIBRARIES})
 ENDIF()
 
-INSTALL(TARGETS sgetris DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/)
+INSTALL(
+	TARGETS
+	sgetris
+	DESTINATION
+	${INSTALL_BINARY_DIR}
+)

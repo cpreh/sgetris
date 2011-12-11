@@ -3,20 +3,14 @@
 
 #include "flake_fwd.hpp"
 #include "flake_count.hpp"
-#include "../../texture_manager_fwd.hpp"
 #include "../base.hpp"
-#include "../../diff_clock.hpp"
+#include "../../texture_manager_fwd.hpp"
+#include "../../diff_timer.hpp"
 #include "../../real.hpp"
 #include "../../sprite/system.hpp"
 #include <sge/renderer/device_fwd.hpp>
-#include <sge/image/loader_fwd.hpp>
-#include <sge/time/timer.hpp>
-#include <sge/texture/default_creator.hpp>
-#include <sge/texture/no_fragmented.hpp>
-#include <sge/texture/manager.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <utility>
 
 namespace sgetris
 {
@@ -32,26 +26,25 @@ public:
 	explicit
 	object(
 		boost::program_options::variables_map &,
-		sge::renderer::device_ptr,
+		sge::renderer::device &,
 		// The flakes get the loader because in a later version more than one flake image could be loaded
 		// from a directory
 		texture_manager &);
-	
+
 	void
-	update(	
+	update(
 		time_delta);
 
 	void
 	draw();
 private:
-	typedef 
+	typedef
 	boost::ptr_vector<flake>
 	flake_sequence;
 
 	texture_manager &texture_manager_;
 	sprite::system ss_;
-	diff_clock clock_;
-	sge::time::timer frame_timer_;
+	sgetris::diff_timer frame_timer_;
 	flake_sequence flakes_;
 
 };

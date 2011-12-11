@@ -4,6 +4,7 @@
 #include "color.hpp"
 #include <sge/sprite/choices.hpp>
 #include <sge/sprite/type_choices.hpp>
+#include <sge/sprite/with_dim.hpp>
 #include <sge/sprite/with_texture.hpp>
 #include <sge/sprite/with_color.hpp>
 #include <sge/sprite/with_rotation.hpp>
@@ -23,8 +24,9 @@ sge::sprite::choices
 		float,
 		color
 	>,
-	boost::mpl::vector3
+	boost::mpl::vector4
 	<
+		sge::sprite::with_dim,
 		sge::sprite::with_texture,
 		sge::sprite::with_rotation,
 		sge::sprite::intrusive::tag
